@@ -1,5 +1,6 @@
 #!/bin/sh
 
+## DONT SUBMIT THIS ON BLACKBOARD
 mv puzzle.txt puzzle.txt.backup
 mv given_solution.txt given_solution.txt.backup
 mv solution.txt solution.txt.backup
@@ -9,9 +10,10 @@ for i in `seq 1 10`; do
         python sudokuGenerator.py > /dev/null 2>&1
 
         python sudokuSolver.py
-        python sudokuChecker.py > /dev/null 2>&1
+        python sudokuChecker.py > /tmp/testing 2>&1
+        grep Error /tmp/testing
 
-        if [ $? -ne 0 ]; then
+        if [ $? -eq 0 ]; then
                 echo ""
                 echo ""
                 echo " Error"
@@ -21,7 +23,8 @@ for i in `seq 1 10`; do
 
         echo "Bruteforce round: $i"
         python sudokuSolver.py bruteforce
-        python sudokuChecker.py > /dev/null 2>&1
+        python sudokuChecker.py > /tmp/testing 2>&1
+        grep Error /tmp/testing
 
         if [ $? -ne 0 ]; then
                 echo ""
@@ -33,7 +36,8 @@ for i in `seq 1 10`; do
 
         echo "MRV round: $i"
         python sudokuSolver.py mrv
-        python sudokuChecker.py > /dev/null 2>&1
+        python sudokuChecker.py > /tmp/testing 2>&1
+        grep Error /tmp/testing
 
         if [ $? -ne 0 ]; then
                 echo ""
@@ -45,7 +49,8 @@ for i in `seq 1 10`; do
 
         echo "Forward check round: $i"
         python sudokuSolver.py forwardcheck
-        python sudokuChecker.py > /dev/null 2>&1
+        python sudokuChecker.py > /tmp/testing 2>&1
+        grep Error /tmp/testing
 
         if [ $? -ne 0 ]; then
                 echo ""
@@ -57,7 +62,8 @@ for i in `seq 1 10`; do
 
         echo "Arc Consistency round: $i"
         python sudokuSolver.py arcconsistency
-        python sudokuChecker.py > /dev/null 2>&1
+        python sudokuChecker.py > /tmp/testing 2>&1
+        grep Error /tmp/testing
 
         if [ $? -ne 0 ]; then
                 echo ""
