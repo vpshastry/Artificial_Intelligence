@@ -173,12 +173,6 @@ def isConsistent (var, puzzle, row, column):
 
     return True
 
-# Need not to check for consistency in case of MRV/FC/Arc as we prepare the solution domain
-# with consistent values, so below method call is a no-op
-def isConsistentMRV(a,b,c,d):
-    return True
-
-
 ###################################################################################################
 ##################### Inference Algos for FC and Arc #############################################
 ###################################################################################################
@@ -186,11 +180,11 @@ def isConsistentMRV(a,b,c,d):
 # Does an inference for Arc consistency
 # Constraint propagation
 def doInferenceArc(var, orderDomainValues, row, column):
-    orderDomainValues[row][column].remove(var)
-
     # Contraint remove don only if the constraint left with single value
     if len(orderDomainValues[row][column]) != 1:
         return
+
+    orderDomainValues[row][column].remove(var)
 
     # Using DFS graph search clear all the constraints from the solution domain
     visitedCells = []
@@ -226,11 +220,11 @@ def doInferenceArc(var, orderDomainValues, row, column):
 
 # Does an inference for Forward Checking
 def doInferenceFC(var, orderDomainValues, row, column):
-    orderDomainValues[row][column].remove(var)
-
     # Contraint remove don only if the constraint left with single value
     if len(orderDomainValues[row][column]) != 1:
         return
+
+    orderDomainValues[row][column].remove(var)
 
     # Remove from the corresponding row
     for j in range(0,9):
@@ -251,7 +245,6 @@ def doInferenceFC(var, orderDomainValues, row, column):
             if var in orderDomainValues[i][j]:
                 orderDomainValues[i][j].remove (var)
 
-    print orderDomainValues
     return
 
 ###################################################################################################
@@ -305,20 +298,20 @@ def arcconsistencyBacktrackMethod(noOfUnsolvedCells, row, column):
         print "Received Unexpected Logic Error or Unsolvable input puzzle"
         sys.exit()
 
-    # Select-Unassigned-Variable - returns the next empty cell with minimum remaining values (MRV)
-    (nextEmptyX, nextEmptyY) = selectUnassignedVariableMRV (global_puzzle, order_domain_values, row, column)
-
     orderDomainValues = getOrderDomainValuesMRV (order_domain_values, row, column);
 
     for i in orderDomainValues:
         # Check for consistency - Look at the function definition for consistency detail
-        if isConsistentMRV (i, global_puzzle, row, column):
+        if isConsistent (i, global_puzzle, row, column):
             # If consistent assign the variable
             global_puzzle[row][column] = i
             noOfUnsolvedCells -= 1
 
             # Plese check the what does this function do above the function definition
             doInferenceArc (i, order_domain_values, row, column)
+
+            # Select-Unassigned-Variable - returns the next empty cell with minimum remaining values (MRV)
+            (nextEmptyX, nextEmptyY) = selectUnassignedVariableMRV (global_puzzle, order_domain_values, row, column)
 
             ret = arcconsistencyBacktrackMethod(noOfUnsolvedCells, nextEmptyX, nextEmptyY)
             if ret:
@@ -347,10 +340,6 @@ def forwardcheckBacktrackMethod(noOfUnsolvedCells, row, column):
         print "Received Unexpected Logic Error or Unsolvable input puzzle"
         sys.exit()
 
-    # Select-Unassigned-Variable - returns the next empty cell with minimum remaining values (MRV)
-    (nextEmptyX, nextEmptyY) = selectUnassignedVariableMRV (global_puzzle, order_domain_values, row, column)
-    print "NextEmpty: ", nextEmptyX, nextEmptyY
-
     orderDomainValues = getOrderDomainValuesMRV (order_domain_values, row, column);
 
     for i in orderDomainValues:
@@ -362,6 +351,9 @@ def forwardcheckBacktrackMethod(noOfUnsolvedCells, row, column):
 
             # Plese check the what does this function do above the function definition
             doInferenceFC (i, order_domain_values, row, column)
+
+            # Select-Unassigned-Variable - returns the next empty cell with minimum remaining values (MRV)
+            (nextEmptyX, nextEmptyY) = selectUnassignedVariableMRV (global_puzzle, order_domain_values, row, column)
 
             ret = forwardcheckBacktrackMethod(noOfUnsolvedCells, nextEmptyX, nextEmptyY)
             if ret:
@@ -547,7 +539,7 @@ def solve_puzzle(puzzle, argv):
 
     elif argv[1] == "arcconsistency":
         print "Solving the puzzle using Arc consistency method"
-        arconsistency (puzzle, noOfUnsolvedCells);
+        arcconsistency (puzzle, noOfUnsolvedCells);
         print "Nodes Expanded: ", nodesExpanded
 
     else:
