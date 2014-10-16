@@ -46,7 +46,6 @@ def establishSolutionDomain(puzzle):
                     if not (inRow or inColumn or inBox):
                         order_domain_values[i][j].append(var)
 
-    print order_domain_values
     return
 
 # Returns the total number of unsolved Cells, ie counts for the number of '0's
