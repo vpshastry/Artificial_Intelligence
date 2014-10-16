@@ -43,13 +43,17 @@ def establishSolutionDomain(puzzle):
                     inColumn = isInColumn (puzzle, j, var)
                     inBox = isInBox (puzzle, i, j, var)
 
+                    # Add only those values which aren't in neither in
+                    # row, column or box
                     if not (inRow or inColumn or inBox):
                         order_domain_values[i][j].append(var)
 
     return
 
 # Returns the total number of unsolved Cells, ie counts for the number of '0's
-# in the puzzle array
+# in the puzzle array, this is used as our termination condiation in the
+# backtrack method. We decrement each time we get a solution and when it
+# reaches 0 we reached solution !!
 def getNoOfUnsolvedCells(puzzle):
     noOfUnsolvedCells = 0
 
@@ -61,6 +65,7 @@ def getNoOfUnsolvedCells(puzzle):
     return noOfUnsolvedCells
 
 # is the number in given row?
+# This method is used for consistency check
 def isInRow(puzzle, row, var):
     if var in puzzle[row]:
         return True
@@ -68,6 +73,7 @@ def isInRow(puzzle, row, var):
     return False
 
 # is the number in given Column?
+# This method is used for consistency check
 def isInColumn(puzzle, column, var):
     for i in range(0,9):
         if var == puzzle[i][column]:
@@ -76,6 +82,7 @@ def isInColumn(puzzle, column, var):
     return False
 
 # is the number in given sub-box?
+# This method is used for consistency check
 def isInBox(puzzle, row, column, var):
     boxStartX = ((row/3) * 3)
     boxStartY = ((column/3) * 3)
@@ -90,10 +97,14 @@ def isInBox(puzzle, row, column, var):
 #########################################################################
 ##################### different methods to serve domain values ##########
 #########################################################################
+# The complete order domain for any 3x3 sudoku problem is [1-9]
+# this used in bruteforce method always returns lsit of 1-9
 def getOrderDomainValues():
     return [1,2,3,4,5,6,7,8,9]
 
 # this is common for all MRV, FC and Arc
+# we've already prepared the solution domain so just return the
+# list prepared, so need not to calculate anything
 def getOrderDomainValuesMRV (orderDomainValues, row, column):
     return orderDomainValues[row][column]
 
@@ -128,6 +139,8 @@ def selectUnassignedVariableMRV(puzzle, orderDomainValues, row, column):
 
     for i in range(0,9):
         for j in range(0,9):
+            # Don't return the same row, column that the currently
+            # operating on, so just continue in this case
             if i == row and j == column:
                 continue
 
@@ -141,10 +154,12 @@ def selectUnassignedVariableMRV(puzzle, orderDomainValues, row, column):
 # Returns the next cell that needs to be solved without any intelligence
 def selectUnassignedVariable(puzzle, curRow, curCol):
 
+    # check for remaining cells in the current row
     for j in range(curCol, 9):
         if puzzle[curRow][j] == 0:
             return (curRow, j)
 
+    # check for the remaining rows
     for i in range(curRow+1,9):
         for j in range (0,9):
             if puzzle [i][j] == 0:
@@ -162,6 +177,7 @@ def selectUnassignedVariable(puzzle, curRow, curCol):
 # based on the puzzle inputs
 # How does it do?
 # Checks whether the given value already present in the given row/column/box
+# If it present in the any of the above it is not consistent (inconsistent)
 def isConsistent (var, puzzle, row, column):
     inRow = isInRow(puzzle, row, var)
     inColumn = isInColumn (puzzle, column, var)
@@ -185,11 +201,15 @@ def doInferenceArc(var, orderDomainValues, row, column):
 
     orderDomainValues[row][column].remove(var)
 
-    # Using DFS graph search clear all the constraints from the solution domain
+    # Using BFS graph search clear all the constraints from the solution domain
     visitedCells = []
+    # Fringe here is a Queue
     fringe = []
-    fringe.append ((row, column))
+    fringe.insert (0, (row, column))
 
+    # Propagate the constraint using the BFS method adds to the queue if any other
+    # node with single value is found. The key is (row, column, value) that found
+    # so it doesn't drop into infinite loop traversing the same nodes
     while (len (fringe) == 0):
         lrow, lcolumn = fringe.pop ()
         lvar = orderDomainValues[lrow][lcolumn][0]
@@ -197,15 +217,19 @@ def doInferenceArc(var, orderDomainValues, row, column):
 
         # Remove from the corresponding row
         for j in range(0,9):
-            orderDomainValues[lrow][j].remove (lvar)
-            if len (orderDomainValues[lrow][j]) == 1 and not((lrow, j, lvar) in visitedCells):
-                fringe.append (( row, j))
+            if var in orderDomainValues[row][j]:
+                orderDomainValues[lrow][j].remove (lvar)
+                # if len of this node is 1 and already not visited add it to queue
+                if len (orderDomainValues[lrow][j]) == 1 and not((lrow, j, lvar) in visitedCells):
+                    fringe.insert (0, ( row, j))
 
         # Remove from the corresponding column
         for i in range(0,9):
-            orderDomainValues[i][lcolumn].remove (lvar)
-            if len (orderDomainValues[i][lcolumn]) == 1 and not((lrow, j, lvar) in visitedCells):
-                fringe.append ((i, lcolumn))
+            if var in orderDomainValues[i][column]:
+                orderDomainValues[i][lcolumn].remove (lvar)
+                # if len of this node is 1 and already not visited add it to queue
+                if len (orderDomainValues[i][lcolumn]) == 1 and not((lrow, j, lvar) in visitedCells):
+                    fringe.insert (0, (i, lcolumn))
 
         boxStartX = ((lrow/3) * 3)
         boxStartY = ((lcolumn/3) * 3)
@@ -213,9 +237,11 @@ def doInferenceArc(var, orderDomainValues, row, column):
         # Remove from the corresponding box
         for i in range(boxStartX,(boxStartX + 3)):
             for j in range(boxStartY,(boxStartY + 3)):
-                orderDomainValues[i][j].remove (lvar)
-                if len (orderDomainValues[i][j]) == 1 and not((lrow, j, lvar) in visitedCells):
-                    fringe.append ((i, j))
+                if var in orderDomainValues[i][j]:
+                    orderDomainValues[i][j].remove (lvar)
+                    # if len of this node is 1 and already not visited add it to queue
+                    if len (orderDomainValues[i][j]) == 1 and not((lrow, j, lvar) in visitedCells):
+                        fringe.insert (0, (i, j))
 
 # Does an inference for Forward Checking
 def doInferenceFC(var, orderDomainValues, row, column):
