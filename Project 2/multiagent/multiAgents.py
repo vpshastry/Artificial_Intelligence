@@ -204,12 +204,12 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 	"""
-	The first layer will contain the max node which is the root.
+	The first layer will contain the maximizer node which is the root.
 	The second layer onwards it will contain the minimizer nodes.
 		
 	"""
 	"""
-	Will start of with minus infinity and increment it for the max root node
+	The variable value will start of with minus infinity and increment it for the max root node
 	"""
 	bestScore = -float('Inf')i
 	"""
@@ -226,43 +226,74 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 	MAX function to calculate the value for the maximizer node. 
 	The root will be the only maximizer node here in our case.
 	According to this algorithm, this function will evaluate the max value that is available from the minimum values available from the child nodes. 
-	That is, it will evaluate the MAX best option available from the MIN's best option to root.
+	That is, it will evaluate the MAX best option available from the MIN's best option to root. It will also keep a track of whether or not to traverse any further nodes for better values.
 	
 	"""
 	def max_value(gameState, alpha, beta, depth, agentIndex):
                 """
-
+		Terminating condition
 		"""
 		if depth == 0 or gameState.isWin() or gameState.isLose():
                         return self.evaluationFunction(gameState)
-                v = -float('Inf')
+                """
+		Starting off with minus infinity and incrementing it till we find the best MAX score
+		"""
+		v = -float('Inf')
                 numAgents = gameState.getNumAgents() - 1
 		agentIndex = 0
                 for eachAction in gameState.getLegalActions(agentIndex):
                         """
-			
+			Traversing out through the child minimizer nodes and retrieving the max value from them		
 			"""
 			v = max(v, min_value(gameState.generateSuccessor(agentIndex, eachAction), alpha, beta, depth, numAgents))
-                        if v >= beta:
+                        """
+			If the maximizer value at the parent node (beta) is less than the min values retrieved from the child nodes(v), return the max value and thus prune any further child nodes computation
+			"""
+
+			if v >= beta:
                                 return v
                         alpha = max(alpha, v)
                 return v
 
+	"""
+	MIN function to calculate the value for the minimizer nodes. 
+	According to this algorithm, this function will evaluate the best minimum value available in the child nodes.
+	Also, it will keep a track of whether or not to traverse any further nodes for better values.
+	
+	"""
 
         def min_value(gameState, alpha, beta, depth, agentIndex):
-                if depth == 0 or gameState.isWin() or gameState.isLose():
+                """
+		Terminating condition
+		"""
+		if depth == 0 or gameState.isWin() or gameState.isLose():
                         return self.evaluationFunction(gameState)
-                v = float('Inf')
+                """
+		Starting off with plus infinity and decrementing it till we find the best MIN score
+		"""
+		v = float('Inf')
                 numAgents = gameState.getNumAgents() - 1
                 for eachAction in gameState.getLegalActions(agentIndex):
+			"""
+			Checking if the node is the root node or not.
+			If root node, run the maximizer function.
+			Else, for child nodes in layer, run the minimizer function for evaluation.	
+			"""
                         if numAgents == agentIndex:
                                 v = min(v, max_value(gameState.generateSuccessor(agentIndex, eachAction), alpha, beta, depth - 1, numAgents))
                         else:
                                 v = min(v, min_value(gameState.generateSuccessor(agentIndex, eachAction), alpha, beta, depth, agentIndex + 1))
-                        if v <= alpha:
+                        """
+			If the max value at parent node (alpha) computed is less than the value for child nodes under it(v), return the min value and thus prune any further child nodes for computation 
+			"""
+			if v <= alpha:
                                 return v
                         beta = min(beta, v)
                 return v
+
+	"""
+	Traversing through the actions to get the best action by using Alpha Beta pruning
+	"""
 
         for eachAction in gameState.getLegalActions(0):
                 previousScore = bestScore
@@ -273,9 +304,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 if beta <= bestScore:
                         return bestAction
         return bestAction
-
-	
-	util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
