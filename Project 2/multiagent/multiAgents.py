@@ -68,75 +68,45 @@ class ReflexAgent(Agent):
         to create a masterful evaluation function.
         """
         # Useful information you can extract from a GameState (pacman.py)
-        tie_breaker=0
-        if action == 'North': tie_breaker =5
-        if action == 'East': tie_breaker =2
-        if action == 'West': tie_breaker =3
-        if action == 'South': tie_breaker =4
-        if action == 'Stop': tie_breaker =1
         successorGameState = currentGameState.generatePacmanSuccessor(action)
-        #print ("succerssorgamestates=",successorGameState)
         newPos = successorGameState.getPacmanPosition()
         newFood = successorGameState.getFood()
-        newFoodCount = newFood.count()
+        newFoodCount = newFood.count() # get number of food items
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
-        newGhostPositions = [ghostState.getPosition() for ghostState in newGhostStates]
-        #print("New Pos =", newPos, "NewFoodCount=", newFoodCount, "newGhostPositions=", newGhostPositions, "newScaredTimes=", newScaredTimes)
+        newGhostPositions = [ghostState.getPosition() for ghostState in newGhostStates] # the positions of the ghost(s)
         "*** YOUR CODE HERE ***"
         #Calculate Distance to each Ghost
         distanceToGhosts = [manhattanDistance(ghostPosition, newPos) for ghostPosition in newGhostPositions]
-        #print("Distance to Ghosts = ", distanceToGhosts)
+        #find out the nearest Ghost
         distanceToNearestGhost =0
         if distanceToGhosts : distanceToNearestGhost = min(distanceToGhosts)
         #Calculate Distance to each Food
         newFoodsList = newFood.asList()
-        #print("newFoodsList",newFoodsList)
-        AvgDistanceToFoods =1
+        AvgDistanceToFoods =1 #unused for now, keeping in case it's needed later
         distanceToNearestFood=0
         distanceToFarthestFood=1
+        #find distance to each food from current position
         distanceToFoods = [manhattanDistance(aFood, newPos) for aFood in newFoodsList]
-        if distanceToFoods: distanceToNearestFood = min(distanceToFoods)
-        if distanceToFoods: distanceToFarthestFood = max(distanceToFoods)
-        if distanceToFoods: AvgDistanceToFoods = sum(distanceToFoods)/len(distanceToFoods)
-        #print("Distance to Foods=", distanceToFoods, "Nearest Distance=", distanceToNearestFood)
-        #print("successorGameState.getScore()=", successorGameState.getScore())
-        '''featureGhost = distanceToNearestGhost
-        featureNearFood = float(1.0/float(distanceToNearestFood))
-        featureFoodCount = float(1.0/float(newFoodCount))
-        featureFarFood = distanceToFarthestFood
-        #featureFood = distanceToFarthestFood
-        weightGhost = 0
-        weightNearFood = 15;
-        if(distanceToNearestGhost<4): weightGhost = 200;
-        weightNearFood=random.randint(20, 40)
-        weightFarFood = 0
-        weightScore = 0
-        weightFoodCount = 20'''
+        if distanceToFoods: distanceToNearestFood = min(distanceToFoods) #nearest food
+        if distanceToFoods: distanceToFarthestFood = max(distanceToFoods) # farthest food
+        if distanceToFoods: AvgDistanceToFoods = sum(distanceToFoods)/len(distanceToFoods) # avg distance to all foods
+        #calculation each feature value and its weight.
         featureGhost = distanceToNearestGhost
         if not newFoodCount==0 : featureFoodCount = float(1.0/float(newFoodCount))
         else :
             featureFoodCount =0
-            #weightGhost=200
-        if distanceToNearestFood ==0: featureNearFood=0
+        if distanceToNearestFood ==0: featureNearFood=0 # boundary case
         else : featureNearFood = float(1.0/float(distanceToNearestFood+distanceToFarthestFood))
+        # just have any food if it is so close by, don't get confused to not have it keep for later
         if(featureNearFood==1):weightNearFood = 0
-        else: weightNearFood=25
-        if(distanceToNearestGhost<3): weightGhost = -200
-        else : weightGhost=0
-        weightFoodCount=20
-        weightScore=2
-        '''if(newScaredTimes[0]>0 and dis):
-            weightGhost=0;
-            weightNearFood=200
-            weightFoodCount=1
-            weightScore=0'''
-        #print('featurefood=',featureNearFood,'weightnearfood=',weightNearFood)
+        else: weightNearFood=25 # otherwise distance to food it very important
+        if(distanceToNearestGhost<3): weightGhost = -200 # The ghost is near by, run away now !
+        else : weightGhost=0 # The ghost is not near, so don't worry, just concentrate on the food
+        weightFoodCount=20 # even count of remaining food is important, in-case another nearby position does not have food
+        weightScore=2 # giving a little weightage to prev. score as well
         result = weightNearFood*featureNearFood+weightFoodCount*featureFoodCount+weightGhost*featureGhost+weightScore*successorGameState.getScore()
-        #print("returning eval=", result)
-        #print("-------------------------------")
         return result
-        #return successorGameState.getScore()
 
 def scoreEvaluationFunction(currentGameState):
     """
