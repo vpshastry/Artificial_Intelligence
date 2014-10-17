@@ -191,7 +191,83 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+	"""
+        The first layer will contain the maximizer node which is the root.
+        The second layer onwards it will contain the minimizer nodes.
+
+        """
+        """
+        The variable value will start of with minus infinity and increment it for the max root node
+        """
+        bestScore = -float('Inf')
+        bestAction = Directions.STOP
+
+        """
+        MAX function to calculate the value for the maximizer node.
+        The root will be the only maximizer node here in our case.
+        According to this algorithm, this function will evaluate the max value that is available from the minimum values available from the child nodes.
+        That is, it will evaluate the MAX best option available from the MIN's best option to root.
+        """
+        def max_value(gameState, depth, agentIndex):
+                """
+                Terminating condition
+                """
+                if depth == 0 or gameState.isWin() or gameState.isLose():
+                        return self.evaluationFunction(gameState)
+                """
+                Starting off with minus infinity and incrementing it till we find the best MAX score
+                """
+                v = -float('Inf')
+                numAgents = gameState.getNumAgents() - 1
+                agentIndex = 0
+                for eachAction in gameState.getLegalActions(agentIndex):
+                        """
+                        Traversing out through the child minimizer nodes and retrieving the max value from them
+                        """
+                        v = max(v, min_value(gameState.generateSuccessor(agentIndex, eachAction), depth, numAgents))
+                return v
+
+	"""
+        MIN function to calculate the value for the minimizer nodes.
+        According to this algorithm, this function will evaluate the best minimum value available in the child nodes.
+
+        """
+
+        def min_value(gameState, depth, agentIndex):
+                """
+                Terminating condition
+                """
+                if depth == 0 or gameState.isWin() or gameState.isLose():
+                        return self.evaluationFunction(gameState)
+                """
+		Starting off with plus infinity and decrementing it till we find the best MIN score
+                """
+                v = float('Inf')
+                numAgents = gameState.getNumAgents() - 1
+                for eachAction in gameState.getLegalActions(agentIndex):
+                        """
+                        Checking if the node is the root node or not.
+                        If root node, run the maximizer function.
+                        Else, for child nodes in layer, run the minimizer function for evaluation.
+                        """
+                        if numAgents == agentIndex:
+                                v = min(v, max_value(gameState.generateSuccessor(agentIndex, eachAction), depth - 1, numAgents))
+                        else:
+                                v = min(v, min_value(gameState.generateSuccessor(agentIndex, eachAction), depth, agentIndex + 1))
+                return v
+
+        """
+        Traversing through the actions to get the best action by using Minimax algorithm
+        """
+
+        for eachAction in gameState.getLegalActions(0):
+                previousScore = bestScore
+                bestScore = max(bestScore, min_value(gameState.generateSuccessor(0, eachAction), self.depth, 1))
+                if bestScore > previousScore:
+                        bestAction = eachAction
+        return bestAction
+
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -211,7 +287,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 	"""
 	The variable value will start of with minus infinity and increment it for the max root node
 	"""
-	bestScore = -float('Inf')i
+	bestScore = -float('Inf')
 	"""
 	alpha: MAX's best option on path to root
 	"""
