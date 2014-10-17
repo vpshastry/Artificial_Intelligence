@@ -108,24 +108,6 @@ def getOrderDomainValues():
 def getOrderDomainValuesMRV (orderDomainValues, row, column):
     return orderDomainValues[row][column]
 
-# A list generated for a cell in the 9x9 sudoku which says what are the
-# numbers can be filled in the cell (takes those number which are not in any
-# of current row, current column or current sub 3x3 box) for Team's solution
-def getCanBeFilledList(puzzle, row, column):
-    canBeFilledList = []
-
-    for i in range(1,10):
-        # not (inRow or inColumn or inBox)
-        inRow = isInRow(puzzle, row, i)
-        inColumn = isInColumn (puzzle, column, i)
-        inBox = isInBox (puzzle, row, column, i)
-
-        if not (inRow or inColumn or inBox):
-            canBeFilledList.append(i)
-
-    return canBeFilledList
-
-
 #########################################################################
 ##################### Selects the next cell that needs to be solved #####
 #########################################################################
@@ -275,36 +257,6 @@ def doInferenceFC(var, orderDomainValues, row, column):
 ###################################################################################################
 ##################### Main algos that checks responisble for backtracking #########################
 ###################################################################################################
-# Recursive backtrack algorithm
-def oursolutionSudokuSolver(noOfUnsolvedCells, row, column):
-    # To display the statistics
-    global nodesExpanded
-    nodesExpanded += 1
-
-    # Terminating condition
-    if noOfUnsolvedCells == 0:
-        return True
-
-    if row == -1 or column == -1:
-        print "Received Unexpected Logic Error or Unsolvable input puzzle"
-        sys.exit()
-
-    (nextEmptyX, nextEmptyY) = selectUnassignedVariable(global_puzzle, row, column+1)
-
-    for i in getCanBeFilledList(global_puzzle, row, column):
-
-        global_puzzle[row][column] = i
-        noOfUnsolvedCells -= 1
-
-        ret = oursolutionSudokuSolver(noOfUnsolvedCells, nextEmptyX, nextEmptyY)
-        if ret:
-            # If successful say it to caller
-            return True
-
-        global_puzzle[row][column] = 0
-        noOfUnsolvedCells += 1
-
-    return False
 
 # Arc consistency added to the naive backtrack method
 def arcconsistencyBacktrackMethod(noOfUnsolvedCells, row, column):
@@ -510,20 +462,11 @@ def mrv(puzzle, noOfUnsolvedCells):
     return
 
 # Triggering function for bruteforce algorith
-def oursolution(puzzle, noOfUnsolvedCells):
-
-    (startX, startY) = selectUnassignedVariable(puzzle, 0, 0)
-
-    oursolutionSudokuSolver (noOfUnsolvedCells, startX, startY);
-
-    return
-
-# Triggering function for bruteforce algorith
 def bruteforce(puzzle, noOfUnsolvedCells):
 
     (startX, startY) = selectUnassignedVariable(puzzle, 0, 0)
 
-    oursolutionSudokuSolver(noOfUnsolvedCells, startX, startY);
+    bruteForceBacktrackMethod(noOfUnsolvedCells, startX, startY);
 
     return
 
@@ -539,10 +482,6 @@ def solve_puzzle(puzzle, argv):
         print "2. mrv"
         print "3. forwardcheck"
         print "4. arconsistency"
-        print "Defaulting to Team's method"
-        print "Solving the puzzle using own method"
-        ret = oursolution(puzzle, noOfUnsolvedCells)
-        print "Nodes Expanded: ", nodesExpanded
 
         return global_puzzle
 
@@ -573,10 +512,6 @@ def solve_puzzle(puzzle, argv):
         print "2. mrv"
         print "3. forwardcheck"
         print "4. arconsistency"
-        print "Defaulting to Team's method"
-        print "Solving the puzzle using own method"
-        ret = oursolution(puzzle, noOfUnsolvedCells)
-        print "Nodes Expanded: ", nodesExpanded
 
     return global_puzzle
     #return load_sudoku('given_solution.txt')

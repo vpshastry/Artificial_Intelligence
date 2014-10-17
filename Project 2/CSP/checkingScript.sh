@@ -9,24 +9,12 @@ for i in `seq 1 10`; do
         echo "Team's solution round: $i"
         python sudokuGenerator.py > /dev/null 2>&1
 
-        python sudokuSolver.py
-        python sudokuChecker.py > /tmp/testing 2>&1
-        grep Error /tmp/testing
-
-        if [ $? -eq 0 ]; then
-                echo ""
-                echo ""
-                echo " Error"
-                echo ""
-                echo ""
-        fi
-
         echo "Bruteforce round: $i"
         python sudokuSolver.py bruteforce
         python sudokuChecker.py > /tmp/testing 2>&1
         grep Error /tmp/testing
 
-        if [ $? -ne 0 ]; then
+        if [ $? -eq 0 ]; then
                 echo ""
                 echo ""
                 echo " Error"
@@ -39,7 +27,7 @@ for i in `seq 1 10`; do
         python sudokuChecker.py > /tmp/testing 2>&1
         grep Error /tmp/testing
 
-        if [ $? -ne 0 ]; then
+        if [ $? -eq 0 ]; then
                 echo ""
                 echo ""
                 echo " Error"
@@ -52,7 +40,7 @@ for i in `seq 1 10`; do
         python sudokuChecker.py > /tmp/testing 2>&1
         grep Error /tmp/testing
 
-        if [ $? -ne 0 ]; then
+        if [ $? -eq 0 ]; then
                 echo ""
                 echo ""
                 echo " Error"
@@ -65,7 +53,7 @@ for i in `seq 1 10`; do
         python sudokuChecker.py > /tmp/testing 2>&1
         grep Error /tmp/testing
 
-        if [ $? -ne 0 ]; then
+        if [ $? -eq 0 ]; then
                 echo ""
                 echo ""
                 echo " Error"
