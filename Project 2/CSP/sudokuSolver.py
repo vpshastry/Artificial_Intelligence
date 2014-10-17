@@ -483,6 +483,9 @@ def solve_puzzle(puzzle, argv):
         print "3. forwardcheck"
         print "4. arconsistency"
 
+        print "Solving the puzzle using Forward Checking method"
+        forwardcheck (puzzle, noOfUnsolvedCells);
+        print "Nodes Expanded: ", nodesExpanded
         return global_puzzle
 
 
@@ -512,6 +515,9 @@ def solve_puzzle(puzzle, argv):
         print "2. mrv"
         print "3. forwardcheck"
         print "4. arconsistency"
+        print "Solving the puzzle using Forward Checking method"
+        forwardcheck (puzzle, noOfUnsolvedCells);
+        print "Nodes Expanded: ", nodesExpanded
 
     return global_puzzle
     #return load_sudoku('given_solution.txt')
