@@ -179,7 +179,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
         available from the child nodes.
         That is, it will evaluate the MAX best option available from the MIN's best option to root.
         """
-        def max_value(gameState, depth):
+        def max_value(gameState, depth, numAgents):
                 """
                 Terminating condition
                 """
@@ -189,18 +189,15 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 Starting off with minus infinity and incrementing it till we find the best MAX score
                 """
                 v = -float('Inf')
-                numAgents = gameState.getNumAgents() - 1
                 agentIndex = 0
                 actionList = gameState.getLegalActions(agentIndex)
                 if(len(actionList)==0) : return self.evaluationFunction(gameState)
                 if(actionList.__contains__(Directions.STOP)) : actionList.remove(Directions.STOP)
-                print(actionList)
                 for eachAction in actionList:
                         """
                         Traversing out through the child minimizer nodes and retrieving the max value from them
                         """
-                        v = max(v, min_value(gameState.generateSuccessor(agentIndex, eachAction), depth, numAgents))
-                #print(v)
+                        v = max(v, min_value(gameState.generateSuccessor(agentIndex, eachAction), depth, 1, numAgents))
                 return v
 
 	"""
@@ -209,7 +206,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         """
 
-        def min_value(gameState, depth, agentIndex):
+        def min_value(gameState, depth, agentIndex, numAgents):
                 """
                 Terminating condition
                 """
@@ -219,7 +216,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
 		Starting off with plus infinity and decrementing it till we find the best MIN score
                 """
                 v = float('Inf')
-                numAgents = gameState.getNumAgents() - 1
                 for eachAction in gameState.getLegalActions(agentIndex):
                         """
                         Checking if the node is the root node or not.
@@ -227,10 +223,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
                         Else, for child nodes in layer, run the minimizer function for evaluation.
                         """
                         if numAgents == agentIndex:
-                                v = min(v, max_value(gameState.generateSuccessor(agentIndex, eachAction), depth - 1))
+                                v = min(v, max_value(gameState.generateSuccessor(agentIndex, eachAction), depth - 1, numAgents))
                         else:
-                                v = min(v, min_value(gameState.generateSuccessor(agentIndex, eachAction), depth, agentIndex + 1))
-                #print(v)
+                                v = min(v, min_value(gameState.generateSuccessor(agentIndex, eachAction), depth, agentIndex + 1, numAgents))
                 return v
 
         """
@@ -239,12 +234,12 @@ class MinimaxAgent(MultiAgentSearchAgent):
         actionList = gameState.getLegalActions(0)
         if(len(actionList)==0) : return self.evaluationFunction(gameState)
         if(actionList.__contains__(Directions.STOP)) : actionList.remove(Directions.STOP)
+        numAgents = gameState.getNumAgents()-1
         for eachAction in actionList:
                 previousScore = bestScore
-                bestScore = max(bestScore, min_value(gameState.generateSuccessor(0, eachAction), self.depth, 1))
+                bestScore = max(bestScore, min_value(gameState.generateSuccessor(0, eachAction), self.depth, 1, numAgents))
                 if bestScore > previousScore:
                         bestAction = eachAction
-        print(bestAction)
         return bestAction
 
 
