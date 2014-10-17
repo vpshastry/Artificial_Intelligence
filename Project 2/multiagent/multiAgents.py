@@ -175,10 +175,11 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         MAX function to calculate the value for the maximizer node.
         The root will be the only maximizer node here in our case.
-        According to this algorithm, this function will evaluate the max value that is available from the minimum values available from the child nodes.
+        According to this algorithm, this function will evaluate the max value that is available from the minimum values
+        available from the child nodes.
         That is, it will evaluate the MAX best option available from the MIN's best option to root.
         """
-        def max_value(gameState, depth, agentIndex):
+        def max_value(gameState, depth):
                 """
                 Terminating condition
                 """
@@ -190,11 +191,16 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 v = -float('Inf')
                 numAgents = gameState.getNumAgents() - 1
                 agentIndex = 0
-                for eachAction in gameState.getLegalActions(agentIndex):
+                actionList = gameState.getLegalActions(agentIndex)
+                if(len(actionList)==0) : return self.evaluationFunction(gameState)
+                if(actionList.__contains__(Directions.STOP)) : actionList.remove(Directions.STOP)
+                print(actionList)
+                for eachAction in actionList:
                         """
                         Traversing out through the child minimizer nodes and retrieving the max value from them
                         """
                         v = max(v, min_value(gameState.generateSuccessor(agentIndex, eachAction), depth, numAgents))
+                #print(v)
                 return v
 
 	"""
@@ -221,20 +227,24 @@ class MinimaxAgent(MultiAgentSearchAgent):
                         Else, for child nodes in layer, run the minimizer function for evaluation.
                         """
                         if numAgents == agentIndex:
-                                v = min(v, max_value(gameState.generateSuccessor(agentIndex, eachAction), depth - 1, numAgents))
+                                v = min(v, max_value(gameState.generateSuccessor(agentIndex, eachAction), depth - 1))
                         else:
                                 v = min(v, min_value(gameState.generateSuccessor(agentIndex, eachAction), depth, agentIndex + 1))
+                #print(v)
                 return v
 
         """
         Traversing through the actions to get the best action by using Minimax algorithm
         """
-
-        for eachAction in gameState.getLegalActions(0):
+        actionList = gameState.getLegalActions(0)
+        if(len(actionList)==0) : return self.evaluationFunction(gameState)
+        if(actionList.__contains__(Directions.STOP)) : actionList.remove(Directions.STOP)
+        for eachAction in actionList:
                 previousScore = bestScore
                 bestScore = max(bestScore, min_value(gameState.generateSuccessor(0, eachAction), self.depth, 1))
                 if bestScore > previousScore:
                         bestAction = eachAction
+        print(bestAction)
         return bestAction
 
 
@@ -275,7 +285,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 	That is, it will evaluate the MAX best option available from the MIN's best option to root. It will also keep a track of whether or not to traverse any further nodes for better values.
 	
 	"""
-	def max_value(gameState, alpha, beta, depth, agentIndex):
+	def max_value(gameState, alpha, beta, depth):
                 """
 		Terminating condition
 		"""
@@ -326,7 +336,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 			Else, for child nodes in layer, run the minimizer function for evaluation.	
 			"""
                         if numAgents == agentIndex:
-                                v = min(v, max_value(gameState.generateSuccessor(agentIndex, eachAction), alpha, beta, depth - 1, numAgents))
+                                v = min(v, max_value(gameState.generateSuccessor(agentIndex, eachAction), alpha, beta, depth - 1))
                         else:
                                 v = min(v, min_value(gameState.generateSuccessor(agentIndex, eachAction), alpha, beta, depth, agentIndex + 1))
                         """
