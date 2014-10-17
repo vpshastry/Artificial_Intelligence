@@ -104,7 +104,7 @@ class ReflexAgent(Agent):
         if(distanceToNearestGhost<3): weightGhost = -200 # The ghost is near by, run away now !
         else : weightGhost=0 # The ghost is not near, so don't worry, just concentrate on the food
         weightFoodCount=20 # even count of remaining food is important, in-case another nearby position does not have food
-        weightScore=2 # giving a little weightage to prev. score as well
+        weightScore=2 # giving a little weight to score as well
         result = weightNearFood*featureNearFood+weightFoodCount*featureFoodCount+weightGhost*featureGhost+weightScore*successorGameState.getScore()
         return result
 
