@@ -1,0 +1,16 @@
+How to Run.
+
+Usage: python sudokuSolver.py [bruteforce|mrv|forwardcheck|arcconsistency]
+
+forward check is taken as default
+
+The file sudokuSolver implements 4 algorithms
+1. Bruteforce backtrack algorithm - python sudokuSolver.py bruteforce
+2. MRV Heuristic added to Bruteforce - python sudokuSolver.py mrv
+3. Forward Check Inference - python sudokuSolver.py forwardcheck
+and
+4. Arc Consistency Inference - python sudokuSolver.py arcconsistency
+
+To Run the specific algorithm please pass the command
+line argument. If none of them is passed it defaults
+to our Forward Checking algorithm.
