@@ -1,7 +1,21 @@
 class Question3_Solver:
     def __init__(self, cpt):
         self.cpt = cpt;
+        def __init__(self, cpt):
+        self.first_table = dict()
+        self.cpt = cpt;
+        self.letters = ['`','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','`']
+        self.build_first_table()
 
+    def build_first_table(self):
+        summation = 0
+        for X in self.letters:
+            for Y in self.letters:
+                for hid in self.letters:
+                    summation = summation + (self.cpt.conditional_prob(X, hid) * self.cpt.conditional_prob(hid, Y));
+                    print (X, hid, Y)
+
+                self.first_table[(X, Y)] = summation
     #####################################
     # ADD YOUR CODE HERE
     # Pr(x|y) = self.cpt.conditional_prob(x, y);
