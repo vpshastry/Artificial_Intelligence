@@ -176,10 +176,18 @@ def isConsistent (var, puzzle, row, column):
 
 # Does an inference for Arc consistency
 # Constraint propagation
-def doInferenceArc(var, orderDomainValues, row, column):
+def doInferenceArc(var, odv, row, column):
+    global order_domain_values
+
     # Contraint remove don only if the constraint left with single value
-    if len(orderDomainValues[row][column]) != 1:
-        return
+    if len(odv[row][column]) != 1:
+        return True
+
+    orderDomainValues = [[[] for x in xrange(9)] for x in xrange(9)]
+
+    for i in range(0,9):
+        for j in range(0,9):
+            orderDomainValues[i][j] = odv[i][j][:]
 
     orderDomainValues[row][column].remove(var)
 
@@ -199,15 +207,21 @@ def doInferenceArc(var, orderDomainValues, row, column):
 
         # Remove from the corresponding row
         for j in range(0,9):
-            if var in orderDomainValues[row][j]:
+            if var in orderDomainValues[lrow][j]:
+                if len (orderDomainValues [lrow][j]) == 1:
+                    return False
+
                 orderDomainValues[lrow][j].remove (lvar)
                 # if len of this node is 1 and already not visited add it to queue
                 if len (orderDomainValues[lrow][j]) == 1 and not((lrow, j, lvar) in visitedCells):
-                    fringe.insert (0, ( row, j))
+                    fringe.insert (0, (lrow, j))
 
         # Remove from the corresponding column
         for i in range(0,9):
-            if var in orderDomainValues[i][column]:
+            if var in orderDomainValues[i][lcolumn]:
+                if len (orderDomainValues [i][lcolumn]) == 1:
+                    return False
+
                 orderDomainValues[i][lcolumn].remove (lvar)
                 # if len of this node is 1 and already not visited add it to queue
                 if len (orderDomainValues[i][lcolumn]) == 1 and not((lrow, j, lvar) in visitedCells):
@@ -220,27 +234,49 @@ def doInferenceArc(var, orderDomainValues, row, column):
         for i in range(boxStartX,(boxStartX + 3)):
             for j in range(boxStartY,(boxStartY + 3)):
                 if var in orderDomainValues[i][j]:
+                    if len (orderDomainValues [lrow][lcolumn]) == 1:
+                        return False
                     orderDomainValues[i][j].remove (lvar)
                     # if len of this node is 1 and already not visited add it to queue
                     if len (orderDomainValues[i][j]) == 1 and not((lrow, j, lvar) in visitedCells):
                         fringe.insert (0, (i, j))
 
+    for i in range(0,9):
+        for j in range(0,9):
+            order_domain_values[i][j] = orderDomainValues[i][j][:]
+
+    return True
+
 # Does an inference for Forward Checking
-def doInferenceFC(var, orderDomainValues, row, column):
+def doInferenceFC(var, odv, row, column):
+    global order_domain_values
+
     # Contraint remove don only if the constraint left with single value
-    if len(orderDomainValues[row][column]) != 1:
-        return
+    if len(odv[row][column]) != 1:
+        return True
+
+    orderDomainValues = [[[] for x in xrange(9)] for x in xrange(9)]
+
+    for i in range(0,9):
+        for j in range(0,9):
+            orderDomainValues[i][j] = odv[i][j][:]
 
     orderDomainValues[row][column].remove(var)
 
     # Remove from the corresponding row
     for j in range(0,9):
         if var in orderDomainValues[row][j]:
+            if len (orderDomainValues [row][j]) == 1:
+                return False
+
             orderDomainValues[row][j].remove (var)
 
     # Remove from the corresponding column
     for i in range(0,9):
         if var in orderDomainValues[i][column]:
+            if len (orderDomainValues [i][column]) == 1:
+                return False
+
             orderDomainValues[i][column].remove (var)
 
     boxStartX = ((row/3) * 3)
@@ -250,9 +286,16 @@ def doInferenceFC(var, orderDomainValues, row, column):
     for i in range(boxStartX,(boxStartX + 3)):
         for j in range(boxStartY,(boxStartY + 3)):
             if var in orderDomainValues[i][j]:
+                if len (orderDomainValues [i][j]) == 1:
+                    return False
+
                 orderDomainValues[i][j].remove (var)
 
-    return
+    for i in range(0,9):
+        for j in range(0,9):
+            order_domain_values[i][j] = orderDomainValues[i][j][:]
+
+    return True
 
 ###################################################################################################
 ##################### Main algos that checks responisble for backtracking #########################
@@ -285,15 +328,14 @@ def arcconsistencyBacktrackMethod(noOfUnsolvedCells, row, column):
             noOfUnsolvedCells -= 1
 
             # Plese check the what does this function do above the function definition
-            doInferenceArc (i, order_domain_values, row, column)
+            if doInferenceArc (i, order_domain_values, row, column):
+                # Select-Unassigned-Variable - returns the next empty cell with minimum remaining values (MRV)
+                (nextEmptyX, nextEmptyY) = selectUnassignedVariableMRV (global_puzzle, order_domain_values, row, column)
 
-            # Select-Unassigned-Variable - returns the next empty cell with minimum remaining values (MRV)
-            (nextEmptyX, nextEmptyY) = selectUnassignedVariableMRV (global_puzzle, order_domain_values, row, column)
-
-            ret = arcconsistencyBacktrackMethod(noOfUnsolvedCells, nextEmptyX, nextEmptyY)
-            if ret:
-                # If successful say it to caller
-                return True
+                ret = arcconsistencyBacktrackMethod(noOfUnsolvedCells, nextEmptyX, nextEmptyY)
+                if ret:
+                    # If successful say it to caller
+                    return True
 
             global_puzzle[row][column] = 0
             noOfUnsolvedCells += 1
@@ -327,15 +369,14 @@ def forwardcheckBacktrackMethod(noOfUnsolvedCells, row, column):
             noOfUnsolvedCells -= 1
 
             # Plese check the what does this function do above the function definition
-            doInferenceFC (i, order_domain_values, row, column)
+            if doInferenceFC (i, order_domain_values, row, column):
+                # Select-Unassigned-Variable - returns the next empty cell with minimum remaining values (MRV)
+                (nextEmptyX, nextEmptyY) = selectUnassignedVariableMRV (global_puzzle, order_domain_values, row, column)
 
-            # Select-Unassigned-Variable - returns the next empty cell with minimum remaining values (MRV)
-            (nextEmptyX, nextEmptyY) = selectUnassignedVariableMRV (global_puzzle, order_domain_values, row, column)
-
-            ret = forwardcheckBacktrackMethod(noOfUnsolvedCells, nextEmptyX, nextEmptyY)
-            if ret:
-                # If successful say it to caller
-                return True
+                ret = forwardcheckBacktrackMethod(noOfUnsolvedCells, nextEmptyX, nextEmptyY)
+                if ret:
+                    # If successful say it to caller
+                    return True
 
             global_puzzle[row][column] = 0
             noOfUnsolvedCells += 1
