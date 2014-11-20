@@ -26,26 +26,26 @@ class Question5_Solver:
         pr_max = -999999
         final_letter = '0'
         query = '``'+query+'``'
-        print(query)
+        #print(query)
         for x in letters:
             this_query = query.replace('_',x)
-            print ('Current Guess Letter :', x)
+            #print ('Current Guess Letter :', x)
             count = 0
             pr_prod = 1
             for i in this_query:
-                print ('Current query letter :', i)
+                #print ('Current query letter :', i)
                 count += 1
                 if count == 1: pr_prod = pr_prod * 1
                 #elif count == len(query):
                     #pr_prod = pr_prod * 1
                 elif count == 2: pr_prod = pr_prod * 1
                 else :
-                    print('PR(', i, ',', this_query[count-2], ',', this_query[count-3], ',)=', self.cpt2.conditional_prob(i, this_query[count-2],this_query[count-3]))
-                    pr_prod = pr_prod * self.cpt2.conditional_prob(i, this_query[count-2],this_query[count-3])
-            print('pr_prod for', x, '=', pr_prod)
+                    #print('PR(', i, ',', this_query[count-3], ',', this_query[count-2], ',)=', self.cpt2.conditional_prob(i, this_query[count-3],this_query[count-2]))
+                    pr_prod = pr_prod * self.cpt2.conditional_prob(i, this_query[count-3],this_query[count-2])
+            #print('pr_prod for', x, '=', pr_prod)
             if pr_prod > pr_max:
                 pr_max = pr_prod
                 final_letter = x
-        #print('for query=',query, 'best match was', final_letter, 'with prob', pr_max)
+        #print('-----for query=',query, 'best match was', final_letter, 'with prob', pr_max)
         return final_letter
 
