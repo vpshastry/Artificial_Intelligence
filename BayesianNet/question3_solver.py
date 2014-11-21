@@ -4,6 +4,7 @@ class Question3_Solver:
         self.cpt = cpt
         self.letters = ['`','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
         self.build_first_table()
+        self.build_second_table()
 
     def build_first_table(self):
         summation = 0
@@ -14,7 +15,7 @@ class Question3_Solver:
 
                 self.firsttab[X][Y] = summation
 
-    def first_func(X, Y):
+    def getfirsttab(X, Y):
         return self.firsttab[self.letters.index[X]][self.letters.index[Y]];
 
     def build_second_table():
@@ -25,6 +26,9 @@ class Question3_Solver:
                     summation = summation + (self.cpt.conditional_prob(X, hid) * self.getfirsttab(hid, Y));
 
                 self.secondtab[X][Y] = summation
+
+    def getsecondtab(X, Y):
+        return self.secondtab[self.letters.index[X]][self.letters.index[Y]];
 
     #####################################
     # ADD YOUR CODE HERE
