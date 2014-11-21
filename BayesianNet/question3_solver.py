@@ -66,6 +66,7 @@ class Question3_Solver:
 
                 count += 1
                 if count == 1:
+                    prev = j;
                     continue
 
                 if func == 0:
