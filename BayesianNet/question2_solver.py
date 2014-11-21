@@ -1,7 +1,8 @@
 class Question2_Solver:
     def __init__(self, cpt):
-        self.cpt = cpt;
-        return;
+        self.cpt = cpt
+        self.letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+        return
 
     #####################################
     # ADD YOUR CODE HERE
@@ -17,14 +18,14 @@ class Question2_Solver:
     #    return ["s", "t"];
     def solve(self, query):
         #print('____________NEW____________')
-        letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+
         pr_max = -999999
         final_letter = '0'
         query = '`'+query+'`'
         #print(query)
-        for x in letters:
+        for x in self.letters:
             this_query = query.replace('_', x, 1)
-            for y in letters:
+            for y in self.letters:
                 this_query_new = this_query.replace('_', y, 1)
                 #print ('Current Guess Letters :', x, y)
                 count = 0
