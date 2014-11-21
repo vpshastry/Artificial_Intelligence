@@ -60,12 +60,12 @@ class Question3_Solver:
                     continue;
 
                 if func == 0:
-                    pr_prod = pr_prod * self.cpt.conditional_prob(i, this_query[count-1]);
+                    pr_prod = pr_prod * self.cpt.conditional_prob(j, this_query[count-1]);
                 elif func == 1:
-                    pr_prod = pr_prod * self.first_table[(i, this_query[count-2])];
+                    pr_prod = pr_prod * self.first_table[(j, this_query[count-2])];
                     func = 0
                 elif func == 2:
-                    pr_prod = pr_prod * self.second_table[(i, this_query[count-3])];
+                    pr_prod = pr_prod * self.second_table[(j, this_query[count-3])];
                     func = 0
                 else:
                     print "ERROR............... Exiting"
