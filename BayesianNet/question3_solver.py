@@ -4,6 +4,7 @@ class Question3_Solver:
         self.second_table = dict()
         self.cpt = cpt
         self.letters = ['`','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+        self.letters_main = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
         self.build_first_table()
         self.build_second_table()
 
@@ -51,8 +52,8 @@ class Question3_Solver:
         final_letter = '0'
         query = '`'+query+'`'
         #print(query)
-        letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-        for i in letters:
+
+        for i in self.letters_main:
             this_query = query.replace('_', i)
             #print ('Current Guess Letters :', i)
             count = 0;
