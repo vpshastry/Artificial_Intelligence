@@ -44,5 +44,38 @@ class Question3_Solver:
     #    query: "qu--_--n";
     #    return "t";
     def solve(self, query):
-        return "t";
+        pr_max = -999999
+        final_letter = '0'
+        query = '`'+query+'`'
+
+        for i in self.letters:
+            this_query = query.replace ('_', i);
+
+            count = 0;
+            pr_prod = 1;
+            func = 0;
+
+            for j in this_query:
+                if j == '-':
+                    func = func +1;
+                    continue;
+                else:
+                    func = 0;
+
+                count += 1
+                if count == 1:
+                    continue;
+
+                if func == 1:
+                    pr_prod = pr_prod * self.first_table[(i, this_query[count-UNKNOWN])];
+                elif func == 2:
+                    pr_prod = pr_prod * self.second_table[(i, this_query[count-UNKNOWN])];
+                else:
+                    pr_prod = pr_prod * self.cpt.conditional_prob(i, this_query[count-2]);
+
+            if pr_prod > pr_max:
+                pr_max = pr_prod;
+                final_letter = i;
+
+        return final_letter;
 
