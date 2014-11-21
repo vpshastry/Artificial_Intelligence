@@ -16,6 +16,33 @@ class Question2_Solver:
     #    query: "que__ion";
     #    return ["s", "t"];
     def solve(self, query):
-        return ["s", "t"];
+        #print('____________NEW____________')
+        letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+        pr_max = -999999
+        final_letter = '0'
+        query = '`'+query+'`'
+        #print(query)
+        for x in letters:
+            this_query = query.replace('_', x, 1)
+            for y in letters:
+                this_query_new = this_query.replace('_', y, 1)
+                #print ('Current Guess Letters :', x, y)
+                count = 0
+                pr_prod = 1
+                for i in this_query_new:
+                    #print ('Current query letter :', i)
+                    count += 1
+                    if count == 1: pr_prod = pr_prod * 1
+                    #elif count == len(query):
+                        #pr_prod = pr_prod * 1
+                    else :
+                        #print('PR(', i, ',', this_query_new[count-2], ')=', self.cpt.conditional_prob(i, this_query_new[count-2]))
+                        pr_prod = pr_prod * self.cpt.conditional_prob(i, this_query_new[count-2])
+                #print('pr_prod for', x, y, '=', pr_prod)
+                if pr_prod > pr_max:
+                    pr_max = pr_prod
+                    final_letter = x,y
+        #print('for query=',query, 'best match was', final_letter, 'with prob', pr_max)
+        return final_letter
 
 

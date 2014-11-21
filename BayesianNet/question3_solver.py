@@ -1,12 +1,13 @@
 class Question3_Solver:
     def __init__(self, cpt):
-        self.firsttab = [[0 for k in range(27)] for i in range(27)]
-        self.secondtab = [[0 for k in range(27)] for i in range(27)]
         self.cpt = cpt;
-        self.letters = ['`','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
-        self.build_first_table();
+        def __init__(self, cpt):
+        self.first_table = dict()
+        self.cpt = cpt;
+        self.letters = ['`','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','`']
+        self.build_first_table()
 
-    def build_first_table():
+    def build_first_table(self):
         summation = 0
         for X in self.letters:
             for Y in self.letters:
@@ -27,7 +28,6 @@ class Question3_Solver:
 
                 self.secondtab[X][Y] = summation
 
-
     #####################################
     # ADD YOUR CODE HERE
     # Pr(x|y) = self.cpt.conditional_prob(x, y);
@@ -41,6 +41,5 @@ class Question3_Solver:
     #    query: "qu--_--n";
     #    return "t";
     def solve(self, query):
-        return final_letter
-
+        return "t";
 
