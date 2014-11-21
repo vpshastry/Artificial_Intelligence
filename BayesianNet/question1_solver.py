@@ -1,7 +1,8 @@
 class Question1_Solver:
     def __init__(self, cpt):
-        self.cpt = cpt;
-        return;
+        self.cpt = cpt
+        self.letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+        return
 
     #####################################
     # ADD YOUR CODE HERE
@@ -17,16 +18,18 @@ class Question1_Solver:
     #    return "t";
     def solve(self, query):
         #print ('_________NEW________')
-        letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
         pr_max = -999999
         final_letter = '0'
-        query = '`'+query+'`'
+        query = '`'+query+'`' # add ` to query
         #print(query)
-        for x in letters:
-            this_query = query.replace('_',x)
+        index1 = query.index('_')
+        new_query = query[index1-1:index1+2] # We need to use only part of query from before to after the "_"
+        #print (new_query)
+        for x in self.letters:
+            this_query = new_query.replace('_',x)
             #print ('Current Guess Letter :', x)
             count = 0
-            pr_prod = 1;
+            pr_prod = 1
             for i in this_query:
                 #print ('Current query letter :', i)
                 count += 1
