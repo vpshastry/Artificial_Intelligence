@@ -29,5 +29,76 @@ class Question4_Solver:
     #            "in_elligence", "inter--_"];
     #    return "t";
     def solve(self, query):
-        return "t";
+        pr_max = -999999;
+        final_letter = '0';
+        query = '`'+query+'`';
 
+        for let in self.letters_main:
+            pr_prod = 1;
+            for qiter in query:
+                qiter = '`' + qiter + '`';
+                pr_prod = pr_prod * getProb (qiter, let);
+
+            if pr_prod > pr_max:
+                pr_max = pr_prod;
+                final_letter = let;
+
+        return final_letter
+
+    def getPrevProb(query, let):
+        underScoreIdx = query.index ('_');
+        postfunc = 0;
+
+        if query[underScoreIdx-1] == '-':
+            if query[underScoreIdx-2] == '-':
+                prevfunc = 2;
+                prev = query[underScoreIdx-3];
+            else:
+                prevfunc = 1;
+                prev = query[underScoreIdx-2];
+        else:
+            prev = query[underScoreIdx-1];
+
+        if prevfunc == 0:
+            return self.cpt.conditional_prob(let, prev);
+        elif prevfunc == 1:
+            return self.first_table[(let, prev)]
+        elif prevfunc == 2:
+            return self.second_table[(let, prev)]
+        else:
+            #print("ERROR............... Exiting")
+            exit()
+
+        return 1;
+
+
+    def getPostProb(query, let):
+        underScoreIdx = query.index ('_');
+        prevfunc = 0;
+
+        if query[underScoreIdx+1] == '-':
+            if query[underScoreIdx+2] == '-':
+                postfunc = 2;
+                post = query[underScoreIdx+3];
+            else:
+                postfunc = 1;
+                post = query[underScoreIdx+2];
+        else:
+            post = query[underScoreIdx+1];
+
+        if postfunc == 0:
+            return self.cpt.conditional_prob(post, let);
+        elif postfunc == 1:
+            return self.first_table[(post, let)]
+        elif postfunc == 2:
+            return self.second_table[(post, let)]
+        else:
+            #print("ERROR............... Exiting")
+            exit()
+
+        return 1;
+
+    def getProb(query, let):
+
+        return getPrevProb(query, let) * getPostProb(query, let);
+        #return "t";
