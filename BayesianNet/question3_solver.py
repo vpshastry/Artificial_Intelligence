@@ -57,28 +57,18 @@ class Question3_Solver:
     # Given the query and letter gets the conditional probability of the letter placed @underscore with the previous non-hidden variable
     def getPrevProb(self, query, let):
         underScoreIdx = query.index ('_');
-        prevfunc = 0;
 
         # Determine which table to use.
         if query[underScoreIdx-1] == '-':
             if query[underScoreIdx-2] == '-':
-                prevfunc = 2;
                 prev = query[underScoreIdx-3];
-            else:
-                prevfunc = 1;
-                prev = query[underScoreIdx-2];
-        else:
-            prev = query[underScoreIdx-1];
+                return self.second_table[(let, prev)]
 
-        # Return the conditional probability of the letter with the previous non-hidden variable
-        if prevfunc == 0:
-            return self.cpt.conditional_prob(let, prev);
-        elif prevfunc == 1:
+            prev = query[underScoreIdx-2];
             return self.first_table[(let, prev)]
-        elif prevfunc == 2:
-            return self.second_table[(let, prev)]
-        else:
-            exit()
+
+        prev = query[underScoreIdx-1];
+        return self.cpt.conditional_prob(let, prev);
 
         return 1;
 
@@ -86,30 +76,18 @@ class Question3_Solver:
     # Given the query and letter gets the conditional probability of the letter placed @underscore with the next non-hidden variable
     def getPostProb(self, query, let):
         underScoreIdx = query.index ('_');
-        postfunc = 0;
 
         # Determine which table to use.
         if query[underScoreIdx+1] == '-':
             if query[underScoreIdx+2] == '-':
-                postfunc = 2;
                 post = query[underScoreIdx+3];
-            else:
-                postfunc = 1;
-                post = query[underScoreIdx+2];
-        else:
-            post = query[underScoreIdx+1];
+                return self.second_table[(post, let)]
 
-        # Return the conditional probability of the letter with the next non-hidden variable
-        if postfunc == 0:
-            return self.cpt.conditional_prob(post, let);
-        elif postfunc == 1:
+            post = query[underScoreIdx+2];
             return self.first_table[(post, let)]
-        elif postfunc == 2:
-            return self.second_table[(post, let)]
-        else:
-            exit()
 
-        return 1;
+        post = query[underScoreIdx+1];
+        return self.cpt.conditional_prob(post, let);
 
     # Given the query and letter gets the conditional probability of the letter placed @underscore with the next non-hidden variable
     #    * multiplied by the conditional probability of the letter placed @underscore with the previous non-hidden variable
