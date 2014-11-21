@@ -53,6 +53,7 @@ class Question3_Solver:
             count = 0;
             pr_prod = 1;
             func = 0;
+            prev = this_query[0];
 
             for j in this_query:
                 if j == '-':
@@ -64,16 +65,19 @@ class Question3_Solver:
                     continue;
 
                 if func == 0:
-                    pr_prod = pr_prod * self.cpt.conditional_prob(j, this_query[count-2]);
+                    pr_prod = pr_prod * self.cpt.conditional_prob(j, prev);
                 elif func == 1:
-                    pr_prod = pr_prod * self.first_table[(j, this_query[count-3])];
+                    pr_prod = pr_prod * self.first_table[(j, prev)];
                     func = 0
                 elif func == 2:
-                    pr_prod = pr_prod * self.second_table[(j, this_query[count-4])];
+                    pr_prod = pr_prod * self.second_table[(j, prev)];
                     func = 0
                 else:
                     print "ERROR............... Exiting"
                     sys.exit()
+
+                if j != '-':
+                    prev = j;
 
 
             if pr_prod > pr_max:
