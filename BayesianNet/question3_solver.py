@@ -1,3 +1,4 @@
+#from pprint import pprint
 class Question3_Solver:
     def __init__(self, cpt):
         self.first_table = dict()
@@ -7,13 +8,15 @@ class Question3_Solver:
         self.letters_main = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
         self.build_first_table()
         self.build_second_table()
+        #pprint(self.first_table)
+        #pprint(self.second_table)
 
     def build_first_table(self):
 
         for X in self.letters:
             for Y in self.letters:
                 summation = 0
-                for hid in self.letters:
+                for hid in self.letters_main:
                     summation = summation + (self.cpt.conditional_prob(X, hid) * self.cpt.conditional_prob(hid, Y))
                 self.first_table[(X, Y)] = summation
 
@@ -25,7 +28,7 @@ class Question3_Solver:
         for X in self.letters:
             for Y in self.letters:
                 summation = 0
-                for hid in self.letters:
+                for hid in self.letters_main:
                     summation = summation + (self.cpt.conditional_prob(X, hid) * self.first_table[(hid, Y)])
                     #print(X,Y,hid)
                 self.second_table[(X,Y)] = summation
@@ -46,8 +49,7 @@ class Question3_Solver:
     #    query: "qu--_--n";
     #    return "t";
     def solve(self, query):
-        #print(self.first_table)
-        #print(self.second_table)
+
         pr_max = -999999
         final_letter = '0'
         query = '`'+query+'`'
