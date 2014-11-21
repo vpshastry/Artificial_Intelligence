@@ -32,39 +32,9 @@ class Question4_Solver:
                     #print(X,Y,hid)
                 self.second_table[(X,Y)] = summation
 
-    #####################################
-    # ADD YOUR CODE HERE
-    # Pr(x|y) = self.cpt.conditional_prob(x, y);
-    # A word begins with "`" and ends with "`".
-    # For example, the probability of word "ab":
-    # Pr("ab") = \
-    #    self.cpt.conditional_prob("a", "`") * \
-    #    self.cpt.conditional_prob("b", "a") * \
-    #    self.cpt.conditional_prob("`", "b");
-    # query example:
-    #    query: ["que-_-on", "--_--icial",
-    #            "in_elligence", "inter--_"];
-    #    return "t";
-    def solve(self, query):
-        pr_max = -999999;
-        final_letter = '0';
-        query = '`'+query+'`';
-
-        for let in self.letters_main:
-            pr_prod = 1;
-            for qiter in query:
-                qiter = '`' + qiter + '`';
-                pr_prod = pr_prod * getProb (qiter, let);
-
-            if pr_prod > pr_max:
-                pr_max = pr_prod;
-                final_letter = let;
-
-        return final_letter
-
-    def getPrevProb(query, let):
+    def getPrevProb(self, query, let):
         underScoreIdx = query.index ('_');
-        postfunc = 0;
+        prevfunc = 0;
 
         if query[underScoreIdx-1] == '-':
             if query[underScoreIdx-2] == '-':
@@ -89,9 +59,9 @@ class Question4_Solver:
         return 1;
 
 
-    def getPostProb(query, let):
+    def getPostProb(self, query, let):
         underScoreIdx = query.index ('_');
-        prevfunc = 0;
+        postfunc = 0;
 
         if query[underScoreIdx+1] == '-':
             if query[underScoreIdx+2] == '-':
@@ -115,7 +85,35 @@ class Question4_Solver:
 
         return 1;
 
-    def getProb(query, let):
+    def getProb(self, query, let):
+        return self.getPrevProb(query, let) * self.getPostProb(query, let);
 
-        return getPrevProb(query, let) * getPostProb(query, let);
+    #####################################
+    # ADD YOUR CODE HERE
+    # Pr(x|y) = self.cpt.conditional_prob(x, y);
+    # A word begins with "`" and ends with "`".
+    # For example, the probability of word "ab":
+    # Pr("ab") = \
+    #    self.cpt.conditional_prob("a", "`") * \
+    #    self.cpt.conditional_prob("b", "a") * \
+    #    self.cpt.conditional_prob("`", "b");
+    # query example:
+    #    query: ["que-_-on", "--_--icial",
+    #            "in_elligence", "inter--_"];
+    #    return "t";
+    def solve(self, query):
+        pr_max = -999999;
+        final_letter = '0';
+
+        for let in self.letters_main:
+            pr_prod = 1;
+            for qiter in query:
+                qiter = '`' + qiter + '`';
+                pr_prod = pr_prod * self.getProb (qiter, let);
+
+            if pr_prod > pr_max:
+                pr_max = pr_prod;
+                final_letter = let;
+
+        return final_letter
         #return "t";
