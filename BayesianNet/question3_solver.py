@@ -59,19 +59,22 @@ class Question3_Solver:
                     func = func +1;
                     continue;
 
+                count += 1;
+                if count == 1:
+                    continue;
+
                 if func == 0:
-                    pr_prod = pr_prod * self.cpt.conditional_prob(j, this_query[count-1]);
+                    pr_prod = pr_prod * self.cpt.conditional_prob(j, this_query[count-2]);
                 elif func == 1:
-                    pr_prod = pr_prod * self.first_table[(j, this_query[count-2])];
+                    pr_prod = pr_prod * self.first_table[(j, this_query[count-3])];
                     func = 0
                 elif func == 2:
-                    pr_prod = pr_prod * self.second_table[(j, this_query[count-3])];
+                    pr_prod = pr_prod * self.second_table[(j, this_query[count-4])];
                     func = 0
                 else:
                     print "ERROR............... Exiting"
                     sys.exit()
 
-                count += 1
 
             if pr_prod > pr_max:
                 pr_max = pr_prod;
