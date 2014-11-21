@@ -12,12 +12,11 @@ class Question3_Solver:
             for Y in self.letters:
                 for hid in self.letters:
                     summation = summation + (self.cpt.conditional_prob(X, hid) * self.cpt.conditional_prob(hid, Y));
-                    print X, hid, Y
 
                 self.firsttab[X][Y] = summation
 
     def first_func(X, Y):
-        return self.firsttab[self.letters.index[X]][self.letters.index[y]];
+        return self.firsttab[self.letters.index[X]][self.letters.index[Y]];
 
     def build_second_table():
         summation = 0
