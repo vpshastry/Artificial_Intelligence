@@ -36,6 +36,62 @@ class Question3_Solver:
     #def getsecondtab(X, Y):
         #return self.secondtab[self.letters.index[X]][self.letters.index[Y]];
 
+    def getPrevProb(self, query, let):
+        underScoreIdx = query.index ('_');
+        prevfunc = 0;
+
+        if query[underScoreIdx-1] == '-':
+            if query[underScoreIdx-2] == '-':
+                prevfunc = 2;
+                prev = query[underScoreIdx-3];
+            else:
+                prevfunc = 1;
+                prev = query[underScoreIdx-2];
+        else:
+            prev = query[underScoreIdx-1];
+
+        if prevfunc == 0:
+            return self.cpt.conditional_prob(let, prev);
+        elif prevfunc == 1:
+            return self.first_table[(let, prev)]
+        elif prevfunc == 2:
+            return self.second_table[(let, prev)]
+        else:
+            #print("ERROR............... Exiting")
+            exit()
+
+        return 1;
+
+
+    def getPostProb(self, query, let):
+        underScoreIdx = query.index ('_');
+        postfunc = 0;
+
+        if query[underScoreIdx+1] == '-':
+            if query[underScoreIdx+2] == '-':
+                postfunc = 2;
+                post = query[underScoreIdx+3];
+            else:
+                postfunc = 1;
+                post = query[underScoreIdx+2];
+        else:
+            post = query[underScoreIdx+1];
+
+        if postfunc == 0:
+            return self.cpt.conditional_prob(post, let);
+        elif postfunc == 1:
+            return self.first_table[(post, let)]
+        elif postfunc == 2:
+            return self.second_table[(post, let)]
+        else:
+            #print("ERROR............... Exiting")
+            exit()
+
+        return 1;
+
+    def getProb(self, query, let):
+        return self.getPrevProb(query, let) * self.getPostProb(query, let);
+
     #####################################
     # ADD YOUR CODE HERE
     # Pr(x|y) = self.cpt.conditional_prob(x, y);
@@ -49,48 +105,15 @@ class Question3_Solver:
     #    query: "qu--_--n";
     #    return "t";
     def solve(self, query):
+        pr_max = -999999;
+        final_letter = '0';
+        query = '`' + query + '`';
 
-        pr_max = -999999
-        final_letter = '0'
-        query = '`'+query+'`'
-        #print(query)
-
-        for i in self.letters_main:
-            this_query = query.replace('_', i)
-            #print ('Current Guess Letters :', i)
-            count = 0;
-            pr_prod = 1;
-            func = 0;
-            prev = this_query[0]
-            for j in this_query:
-                if j == '-':
-                    func = func+1
-                    continue
-
-                count += 1
-                if count == 1:
-                    prev = j;
-                    continue
-
-                if func == 0:
-                    pr_prod = pr_prod * self.cpt.conditional_prob(j, prev)
-                elif func == 1:
-                    pr_prod = pr_prod * self.first_table[(j, prev)]
-                    func = 0
-                elif func == 2:
-                    pr_prod = pr_prod * self.second_table[(j, prev)]
-                    func = 0
-                else:
-                    #print("ERROR............... Exiting")
-                    exit()
-
-                if j != '-':
-                    prev = j
-
+        for let in self.letters_main:
+            pr_prod = self.getProb (query, let);
 
             if pr_prod > pr_max:
-                pr_max = pr_prod
-                final_letter = i
+                pr_max = pr_prod;
+                final_letter = let;
 
         return final_letter
-
