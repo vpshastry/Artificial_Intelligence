@@ -2,9 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="40fb512b-fe1d-4ea9-b0e4-6ac33b34649a" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/BayesianNet/question1_solver.py" afterPath="$PROJECT_DIR$/BayesianNet/question1_solver.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/BayesianNet/question2_solver.py" afterPath="$PROJECT_DIR$/BayesianNet/question2_solver.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/BayesianNet/question5_solver.py" afterPath="$PROJECT_DIR$/BayesianNet/question5_solver.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <list id="d839916e-a218-43e6-854b-066667aca4a0" name="Failed commit: Default" comment="Adding Project 2 folder" />
@@ -643,7 +640,11 @@
       <created>1416539281372</created>
       <updated>1416539281372</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Project 3">
+      <created>1416545621479</created>
+      <updated>1416545621479</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="ToolWindowManager">
