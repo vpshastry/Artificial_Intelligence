@@ -1,9 +1,7 @@
 class Question3_Solver:
     def __init__(self, cpt):
-        self.cpt = cpt;
-        def __init__(self, cpt):
         self.first_table = dict()
-        self.cpt = cpt;
+        self.cpt = cpt
         self.letters = ['`','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','`']
         self.build_first_table()
 
