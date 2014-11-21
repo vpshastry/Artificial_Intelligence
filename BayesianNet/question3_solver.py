@@ -12,8 +12,7 @@ class Question3_Solver:
         for X in self.letters:
             for Y in self.letters:
                 for hid in self.letters:
-                    summation = summation + (self.cpt.conditional_prob(X, hid) * self.cpt.conditional_prob(hid, Y));
-
+                    summation = summation + (self.cpt.conditional_prob(X, hid) * self.cpt.conditional_prob(hid, Y))
                 self.first_table[(X,Y)] = summation
 
     #def getfirsttab(X, Y):
@@ -67,9 +66,9 @@ class Question3_Solver:
                     continue;
 
                 if func == 1:
-                    pr_prod = pr_prod * self.first_table[(i, this_query[count-UNKNOWN])];
+                    pr_prod = pr_prod * self.first_table[(i, this_query[count-3])];
                 elif func == 2:
-                    pr_prod = pr_prod * self.second_table[(i, this_query[count-UNKNOWN])];
+                    pr_prod = pr_prod * self.second_table[(i, this_query[count-4])];
                 else:
                     pr_prod = pr_prod * self.cpt.conditional_prob(i, this_query[count-2]);
 
