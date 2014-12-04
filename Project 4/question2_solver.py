@@ -24,6 +24,40 @@ class Question2_Solver:
 
         for column in zip(*data):
             print "Working on attribute: ", self.attributes[i]
+            j = 0
+            noOfdemQ = noOfdemN = noOfdemY = 0
+            noOfrepQ = noOfrepN = noOfrepY = 0
+            for char in column:
+                if data[j][-1] == self.targets[0]:
+                    if char is 'y':
+                        noOfdemY = noOfdemY +1
+                    elif char is 'n':
+                        noOfdemN = noOfdemN +1
+                    elif char is '?':
+                        noOfdemQ = noOfdemQ +1
+
+                elif data[j][-1] == self.targets[1]:
+                    if char is 'y':
+                        noOfrepY = noOfrepY +1
+                    elif char is 'n':
+                        noOfrepN = noOfrepN +1
+                    elif char is '?':
+                        noOfrepQ = noOfrepQ +1
+
+                j = j +1
+
+            self.demrepubHash[(self.targets[0], self.attributes[i], 'y')] = noOfdemY
+            self.demrepubHash[(self.targets[0], self.attributes[i], 'n')] = noOfdemN
+            self.demrepubHash[(self.targets[0], self.attributes[i], '?')] = noOfdemQ
+
+            self.demrepubHash[(self.targets[1], self.attributes[i], 'y')] = noOfrepY
+            self.demrepubHash[(self.targets[1], self.attributes[i], 'n')] = noOfrepN
+            self.demrepubHash[(self.targets[1], self.attributes[i], '?')] = noOfrepQ
+            i = i +1
+
+        return
+
+        '''
             for curValue in column:
                 for char in self.values:
                     if curValue is char:
@@ -37,6 +71,7 @@ class Question2_Solver:
             #print target, self.attributes[i], char, "------>", self.demrepubHash[(target, self.attributes[i], char)]
 
             i = i +1
+        '''
 
         pprint(self.demrepubHash)
     # Add your code here.
