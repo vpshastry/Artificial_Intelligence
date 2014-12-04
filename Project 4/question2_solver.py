@@ -10,7 +10,7 @@ class Question2_Solver:
                           'physician-fee-freeze', 'el-salvador-aid', 'religious-groups-in-schools',
                           'anti-satellite-test-ban', 'aid-to-nicaraguan-contras', 'mx-missile', 'immigration',
                           'synfuels-corporation-cutback', 'education-spending', 'superfund-right-to-sue', 'crime',
-                          'duty-free-exports', 'export-administration-act-south-africa', 'class', 'null']
+                          'duty-free-exports', 'export-administration-act-south-africa', 'class']
         self.learn('train.data')
         return;
 
@@ -23,17 +23,22 @@ class Question2_Solver:
         i = 0
 
         for column in zip(*data):
+            print "Working on attribute: ", self.attributes[i]
             for curValue in column:
                 for char in self.values:
                     if curValue is char:
                         for target in self.targets:
-                            # TODO: do smoothing
-                            self.demrepubHash[(target, self.attributes[i], char)] += 1
+                            #print target, data[i][-1]
+                            if target == data[i][-1]:
+                                #print "am i here?"
+                                # TODO: do smoothing
+                                self.demrepubHash[(target, self.attributes[i], char)] += 1
                         #if self.demrepubHash[(target, self.attributes[i], char)] is 0:
             #print target, self.attributes[i], char, "------>", self.demrepubHash[(target, self.attributes[i], char)]
 
             i = i +1
 
+        pprint(self.demrepubHash)
     # Add your code here.
     # Read training data and build your naive bayes classifier
     # Store the classifier in this class
@@ -64,19 +69,24 @@ class Question2_Solver:
         for target in self.targets:
             probDemRepub[target] = float(1)
 
-        for target in self.targets:
-            for i, attribute in zip(range(len(inList)), self.attributes):
+        for i, attribute in zip(range(len(inList)), self.attributes):
+            for target in self.targets:
+
                 denominator = 0
                 for char in self.values:
                     denominator = denominator +self.demrepubHash[(target, attribute, char)]
                 #print denominator
-                #print self.demrepubHash[(target, attribute, inList[i])]
+                #print target, attribute, inList[i], "---->", self.demrepubHash[(target, attribute, inList[i])]
+                if denominator is 0:
+                    #print target, attribute, inList[i]
+                    denominator = 1
 
                 probDemRepub[target] = probDemRepub[target]\
                                           *(float(self.demrepubHash[(target, attribute, inList[i])]) /float(denominator))
 
-            print "DemRepub: ", probDemRepub[target]
+            #print "DemRepub: ", probDemRepub[target]
 
+        #print probDemRepub
         max = -99999999
         maxTarget = 'democrat'
         for target in self.targets:
@@ -84,4 +94,5 @@ class Question2_Solver:
                 max = probDemRepub[target]
                 maxTarget = target
 
+        #print maxTarget
         return maxTarget
