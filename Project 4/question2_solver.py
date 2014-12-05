@@ -70,8 +70,11 @@ class Question2_Solver:
                 for char in self.values:
                     denominator = denominator +self.demrepubHash[(target, attribute, char)]
 
-                probDemRepub[target] = probDemRepub[target]\
-                                          *(float(self.demrepubHash[(target, attribute, inList[i])]) /float(denominator))
+                value = (float(self.demrepubHash[(target, attribute, inList[i])]) /float(denominator))
+                if not value:
+                    value = float(self.smoothValue) /float(denominator)
+
+                probDemRepub[target] = probDemRepub[target] * value;
 
 
         max = -99999999
