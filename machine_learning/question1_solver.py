@@ -33,22 +33,26 @@ class Question1_Solver:
             dataList = instance[1].split(',')
             dataList.append(target)
             self.data.append(dataList)
-            colnums=len(self.data[0])
-            self.labels=[self.attributes[i] for i in range(colnums-1)]
+            col_nums=len(self.data[0])
+            self.labels=[self.attributes[i] for i in range(col_nums-1)]
         self.tree = self.buildTree(self.data,self.labels)
         return
 
     #find most common value for an attribute
     def majority_count(self, classlist):
-        print classlist
+        #print classlist
         classcount={}
         for value in classlist:
             if value not in classcount.keys():
                 classcount[value]=0
             classcount[value] += 1
-
-        sortedClassCount = sorted(classcount.iteritems(), key=operator.itemgetter(1), reverse=True)
-        return sortedClassCount[0][0]
+        freq_max = -99999999
+        res = None
+        for i in classcount:
+           if classcount[i] > freq_max:
+               freq_max = classcount[i]
+               res = i
+        return res
 
     #Calculates the entropy of the given data set for the target attr(last)
     def entropy(self, dataset):
@@ -63,8 +67,7 @@ class Question1_Solver:
 
         for key in labels.keys():
             prob = float(labels[key]) /len(dataset)
-            entropy = - prob *math.log (prob, 2)
-
+            entropy += - prob *math.log (prob, 2)
         return entropy
 
     #splitting a list of instances according to their values of a specified attribute
@@ -142,13 +145,14 @@ class Question1_Solver:
         for key in secondDict.keys():
             #print(featIndex)
             if test_query[AttrIndex] == key:
-                if type(secondDict[key]).__name__ == 'dict':
-                    classLabel = self.classify(secondDict[key],labels,test_query)
-                else: classLabel = secondDict[key]
+                if isinstance(secondDict[key], dict):
+                    classification = self.classify(secondDict[key], labels, test_query)
+                else:
+                    classification = secondDict[key]
         try:
-            return classLabel
+            return classification
         except:
-            return "republican"
+            return "republican" #default
 
     def solve(self, query):
             #pprint(self.tree)
@@ -157,8 +161,8 @@ class Question1_Solver:
             #print(instances[0])
             final_instances = instances[0].split(',')
             #print('final_inst-', final_instances)
-            colnums=len(self.data[0])
-            cols2=[self.attributes[i] for i in range(colnums-1)]
+            col_nums=len(self.data[0])
+            cols2 = [self.attributes[i] for i in range(col_nums-1)]
             predicted_label = self.classify(self.tree, cols2, final_instances)
             #print(predicted_label)
             return predicted_label
