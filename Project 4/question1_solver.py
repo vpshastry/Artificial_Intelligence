@@ -48,16 +48,14 @@ class Question1_Solver:
             return self.targets[0]
         return self.targets[1]
 
-
-    def buildTree(self, inTree, data, attribute_list, inClass):
+    def buildTree(self, data, attribute_list, inClass):
         # Create a node N
-        inTree = newnode()
 
         # If tuples in D are all of the same class C then
         # return N as a leaf node labeled with the class C
         lclass = self.isAllOfSameClass(data)
         if not lclass is None:
-            return {'leaf':{}};
+            return {'y': lclass, 'n': lclass, '?': lclass}
 
         # If attribute list is empty return N as a leaf node
         # labeled with the majority class in D
@@ -79,7 +77,7 @@ class Question1_Solver:
         # partition the tuples and grow subtrees for each partition
         # let Dj be the set of data tuples in D satisfying outcome j;
 
-        return N
+        return newTree
 
 
     # Add your code here.
