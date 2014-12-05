@@ -1,6 +1,5 @@
 from pprint import pprint
 import math
-import operator
 
 
 class Question1_Solver:
