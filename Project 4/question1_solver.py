@@ -1,89 +1,167 @@
+from pprint import pprint
+import math
+
+
 class Question1_Solver:
     def __init__(self):
-        self.tree = dict();
-        self.targets = ['democrat', 'republican']
-        self.learn('train.data');
-        self.attributes =['handicapped-infants', 'water-project-cost-sharing', 'adoption-of-the-budget-resolution',
-                          'physician-fee-freeze', 'el-salvador-aid', 'religious-groups-in-schools',
-                          'anti-satellite-test-ban', 'aid-to-nicaraguan-contras', 'mx-missile', 'immigration',
-                          'synfuels-corporation-cutback', 'education-spending', 'superfund-right-to-sue', 'crime',
-                          'duty-free-exports', 'export-administration-act-south-africa', 'class']
-        return;
+        self.attributes = ['handicapped-infants', 'water-project-cost-sharing', 'adoption-of-the-budget-resolution', 'physician-fee-freeze', 'el-salvador-aid', 'religious-groups-in-schools', 'anti-satellite-test-ban', 'aid-to-nicaraguan-contras', 'mx-missile', 'immigration', 'synfuels-corporation-cutback', 'education-spending', 'superfund-right-to-sue', 'crime', 'duty-free-exports', 'export-administration-act-south-africa', 'class']
+        self.data = []
+        self.tree = None
+        self.learn('train.data')
+        #print(self.labels)
+        #pprint(self.tree)
+        self.count = 0
+
+        return
 
     # Add your code here.
     # Read training data and build your decision tree
     # Store the decision tree in this class
     # This function runs only once when initializing
     # Please read and only read train_data: 'train.data'
+
+    #find most common value for an attribute
     def learn(self, train_data):
+        data = []
         with open(train_data, "r") as f:
             data = f.read().splitlines()
-
-        dataList = []
+        target_class = "class"
         for row in data:
             instance = row.split()
             target =  instance[0]
             dataList = instance[1].split(',')
             dataList.append(target)
             self.data.append(dataList)
+            col_nums=len(self.data[0])
+            self.labels=[self.attributes[i] for i in range(col_nums-1)]
+        self.tree = self.buildTree(self.data,self.labels)
+        return
 
-        self.buildTree(self.data, attribute_list, "class")
-        return;
+    #find most common value for an attribute
+    def majority_count(self, classlist):
+        #print classlist
+        classcount={}
+        for value in classlist:
+            if value not in classcount.keys():
+                classcount[value]=0
+            classcount[value] += 1
+        freq_max = -99999999
+        res = None
+        for i in classcount:
+           if classcount[i] > freq_max:
+               freq_max = classcount[i]
+               res = i
+        return res
 
-    def isAllOfSameClass(self, data):
-        lclass = data[0][self.attributes.indexof ('class')]
-        for tuple in data:
-            if not tuple[self.attributes.indexof ('class')] is lclass:
-                return None
+    #Calculates the entropy of the given data set for the target attr(last)
+    def entropy(self, dataset):
+        labels={}
+        entropy=0.0
 
-        return lclass
+        for record in dataset:
+            label=record[-1]
+            if label not in labels.keys():
+                labels[label]=0
+            labels[label]+=1
 
-    def getMajorityClass(self, data):
-        counter['democrat'] = counter['republican'] = 0
+        for key in labels.keys():
+            prob = float(labels[key]) /len(dataset)
+            entropy += - prob *math.log (prob, 2)
+        return entropy
 
-        for tuples in data:
-            counter[tuples[self.attributes.indexof('class')]] += 1
+    #splitting a list of instances according to their values of a specified attribute
+    def splitDataset(self, dataset,col,value):
+        retDataSet=[]
 
-        if (counter[self.targets[0]] > counter[self.targets[1]]):
-            return self.targets[0]
-        return self.targets[1]
+        for record in dataset:
+            if record[col] == value:
+                reducedRecord=record[:col]
+                reducedRecord.extend(record[col+1:])
+                retDataSet.append(reducedRecord)
 
-    def buildTree(self, data, attribute_list, inClass):
-        # Create a node N
+        return retDataSet
 
-        # If tuples in D are all of the same class C then
-        # return N as a leaf node labeled with the class C
-        lclass = self.isAllOfSameClass(data)
-        if not lclass is None:
-            return {'y': lclass, 'n': lclass, '?': lclass}
+    #choose best attribute to split on...
+    def chooseBestAttr(self, dataset):
+        num_attrs = len(dataset[0])-1
+        baseEntropy =self.entropy(dataset)
+        maxInfoGain=0.0
+        bestAttr=-1
 
-        # If attribute list is empty return N as a leaf node
-        # labeled with the majority class in D
-        if not attribute_list:
-            lclass = self.getMajorityClass(data)
-            return lclass
+        for i in range(num_attrs):
+            attrList=[x[i] for x in dataset]
+            uniqueValues=set(attrList)
+            newEntropy=0.0
 
-        # Apply Attribute selection method (d, attr_list) to find the
-        # best splitting criterions
-        self.attributeSelectionMethod (data, attribute_list)
+            for value in uniqueValues:
+                prob=len(self.splitDataset(dataset, i, value))/float(len(dataset))
+                newEntropy += prob*self.entropy(self.splitDataset(dataset, i, value))
 
-        #label Node N with splitting criterion
+            infoGain=baseEntropy-newEntropy
 
-        # if splitting_attribute is discrete valued AND
-        # multiway split allowed then (Not restricted to binary trees)
-        # attribute list = attribute_list - splitting attribute
+            if infoGain > maxInfoGain:
+                maxInfoGain=infoGain
+                bestAttr=i
 
-        # For each outcome j of splitting criterion
-        # partition the tuples and grow subtrees for each partition
-        # let Dj be the set of data tuples in D satisfying outcome j;
+        return bestAttr
 
-        return newTree
+    #Create the DTree
+    def buildTree(self, dataset,labels):
+        classlist = []
+        for i in dataset:
+            classlist.append(i[-1])
 
+        if classlist.count(classlist[0]) == len(classlist):
+            return classlist[0]
 
-    # Add your code here.
-    # Use the learned decision tree to predict
-    # query example: 'n,y,n,y,y,y,n,n,n,y,?,y,y,y,n,y'
-    # return 'republican' or 'republican'
+        if len(classlist) is 1:
+            return self.majority_count(classlist)
+
+        bestAttr=self.chooseBestAttr(dataset)
+        bestFeatureLabel=labels[bestAttr]
+        tree={bestFeatureLabel:{}}
+
+        labels.pop (bestAttr)
+
+        AttrValues = []
+        for i in dataset:
+            AttrValues.append(i[bestAttr])
+
+        uniqueVals = set(AttrValues)
+
+        for value in uniqueVals:
+            subLabels = list(labels)
+            tree[bestFeatureLabel][value] = self.buildTree(self.splitDataset(dataset, bestAttr, value),subLabels)
+
+        return tree
+
+    # test, using built tree to classify test queries
+    def classify(self, tree,labels,test_query):
+        firstStr = tree.keys()[0]
+        secondDict = tree[firstStr]
+        AttrIndex = labels.index(firstStr)
+        #print(featIndex)
+        for key in secondDict.keys():
+            #print(featIndex)
+            if test_query[AttrIndex] == key:
+                if isinstance(secondDict[key], dict):
+                    classification = self.classify(secondDict[key], labels, test_query)
+                else:
+                    classification = secondDict[key]
+        try:
+            return classification
+        except:
+            return "republican" #default
+
     def solve(self, query):
-        return 'democrat';
-
+            #pprint(self.tree)
+            instances = query.split()
+            #instances
+            #print(instances[0])
+            final_instances = instances[0].split(',')
+            #print('final_inst-', final_instances)
+            col_nums=len(self.data[0])
+            cols2 = [self.attributes[i] for i in range(col_nums-1)]
+            predicted_label = self.classify(self.tree, cols2, final_instances)
+            #print(predicted_label)
+            return predicted_label
