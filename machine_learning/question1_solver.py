@@ -1,13 +1,14 @@
-from collections import Counter
 from pprint import pprint
 import math
-import node
+import operator
+
 
 class Question1_Solver:
     def __init__(self):
         self.data = []
         self.tree = None
         self.learn('train.data')
+        print(self.labels)
         pprint(self.tree)
         self.count = 0
         self.attributes = ['handicapped-infants', 'water-project-cost-sharing', 'adoption-of-the-budget-resolution', 'physician-fee-freeze', 'el-salvador-aid', 'religious-groups-in-schools', 'anti-satellite-test-ban', 'aid-to-nicaraguan-contras', 'mx-missile', 'immigration', 'synfuels-corporation-cutback', 'education-spending', 'superfund-right-to-sue', 'crime', 'duty-free-exports', 'export-administration-act-south-africa', 'class']
@@ -21,8 +22,6 @@ class Question1_Solver:
 
     #find most common value for an attribute
     def learn(self, train_data):
-        # # remove trace=1 to turn off tracing
-        #print tree
         with open(train_data, "r") as f:
             data = f.read().splitlines()
         target_class = "class"
@@ -32,195 +31,107 @@ class Question1_Solver:
             dataList = instance[1].split(',')
             dataList.append(target)
             self.data.append(dataList)
-        attributes =['handicapped-infants', 'water-project-cost-sharing', 'adoption-of-the-budget-resolution', 'physician-fee-freeze', 'el-salvador-aid', 'religious-groups-in-schools', 'anti-satellite-test-ban', 'aid-to-nicaraguan-contras', 'mx-missile', 'immigration', 'synfuels-corporation-cutback', 'education-spending', 'superfund-right-to-sue', 'crime', 'duty-free-exports', 'export-administration-act-south-africa', 'class']
-        #print self.data
-        #print target
-        self.tree = self.makeTree(self.data, attributes, target_class, 0)
-        #pprint(self.tree)
-        #data[x][0] - target
-        #print(self.data[0][0])
+            nfeature=len(self.data[0])
+            self.labels=["att"+str(i) for i in range(nfeature-1)]
+        self.tree = self.buildTree(self.data,self.labels)
         return
-
-    #find item in a list
-    def find(self, item, list):
-        for i in list:
-            if item(i):
-                return True
-            else:
-                return False
-
     #find most common value for an attribute
-    def majority(self, attributes, data, target):
-        #find target attribute
-        valFreq = {}
-        #find target in data
-        index = attributes.index(target)
-        #calculate frequency of values in target attr
-        for tuple in data:
-            if (valFreq.has_key(tuple[index])):
-                valFreq[tuple[index]] += 1
-            else:
-                valFreq[tuple[index]] = 1
-        max = 0
-        major = ""
-        for key in valFreq.keys():
-            if valFreq[key]>max:
-                max = valFreq[key]
-                major = key
-        return major
+    def majority_count(self, classlist):
+        classcount={}
+        for value in classlist:
+            if value not in classcount.keys():
+                classcount[value]=0
+            classcount[value] += 1
+        sortedClassCount=sorted(classcount.iteritems(),key=operator.itemgetter(1),reverse=True)
+        return sortedClassCount[0][0]
+    #Calculates the entropy of the given data set for the target attr(last)
+    def entropy(self, dataset):
+        n=len(dataset)
+        labels={}
+        for record in dataset:
+            label=record[-1]
+            if label not in labels.keys():
+                labels[label]=0
+            labels[label]+=1
+        entropy=0.0
+        for key in labels.keys():
+            prob=float(labels[key])/n
+            entropy= -prob*math.log(prob,2)
+        return entropy
+    #splitting a list of instances according to their values of a specified attribute
+    def splitDataset(self, dataset,col,value):
+        retDataSet=[]
+        for record in dataset:
+            if record[col] == value:
+                reducedRecord=record[:col]
+                reducedRecord.extend(record[col+1:])
+                retDataSet.append(reducedRecord)
+        return retDataSet
 
-    #Calculates the entropy of the given data set for the target attr
-    def entropy(self, attributes, data, targetAttr):
+    def chooseBestFeatureToSplit(self, dataset):
+        numberFeature=len(dataset[0])-1
+        baseEntropy=self.entropy(dataset)
+        bestInfoGain=0.0
+        bestFeature=-1
+        for i in range(numberFeature):
+            featureList=[x[i] for x in dataset]
+            uniqueValues=set(featureList)
+            newEntropy=0.0
+            for value in uniqueValues:
+                subDataset=self.splitDataset(dataset, i, value)
+                prob=len(subDataset)/float(len(dataset))
+                newEntropy += prob*self.entropy(subDataset)
+            infoGain=baseEntropy-newEntropy
+            if infoGain > bestInfoGain:
+                bestInfoGain=infoGain
+                bestFeature=i
+        return bestFeature
 
-        valFreq = {}
-        dataEntropy = 0.0
-
-        #find index of the target attribute
-        i = 0
-        for entry in attributes:
-            if (targetAttr == entry):
-                break
-            ++i
-
-        # Calculate the frequency of each of the values in the target attr
-        for entry in data:
-            if (valFreq.has_key(entry[i])):
-                valFreq[entry[i]] += 1.0
-            else:
-                valFreq[entry[i]]  = 1.0
-
-        # Calculate the entropy of the data for the target attr
-        for freq in valFreq.values():
-            dataEntropy += (-freq/len(data)) * math.log(freq/len(data), 2)
-
-        return dataEntropy
-
-    def gain(self, attributes, data, attr, targetAttr):
-        """
-        Calculates the information gain (reduction in entropy) that would
-        result by splitting the data on the chosen attribute (attr).
-        """
-        valFreq = {}
-        subsetEntropy = 0.0
-
-        #find index of the attribute
-        i = attributes.index(attr)
-
-        # Calculate the frequency of each of the values in the target attribute
-        for entry in data:
-            if (valFreq.has_key(entry[i])):
-                valFreq[entry[i]] += 1.0
-            else:
-                valFreq[entry[i]]  = 1.0
-        # Calculate the sum of the entropy for each subset of records weighted
-        # by their probability of occuring in the training set.
-        for val in valFreq.keys():
-            valProb        = valFreq[val] / sum(valFreq.values())
-            dataSubset     = [entry for entry in data if entry[i] == val]
-            subsetEntropy += valProb * self.entropy(attributes, dataSubset, targetAttr)
-
-        # Subtract the entropy of the chosen attribute from the entropy of the
-        # whole data set with respect to the target attribute (and return it)
-        return (self.entropy(attributes, data, targetAttr) - subsetEntropy)
-
-    #choose best attibute
-    def chooseAttr(self, data, attributes, target):
-        best = attributes[0]
-        maxGain = 0;
-        for attr in attributes:
-            newGain = self.gain(attributes, data, attr, target)
-            if newGain>maxGain:
-                maxGain = newGain
-                best = attr
-        return best
-
-    #get values in the column of the given attribute
-    def getValues(self, data, attributes, attr):
-        index = attributes.index(attr)
-        values = []
-        for entry in data:
-            if entry[index] not in values:
-                values.append(entry[index])
-        return values
-
-    def getExamples(self, data, attributes, best, val):
-        examples = [[]]
-        index = attributes.index(best)
-        for entry in data:
-            #find entries with the give value
-            if (entry[index] == val):
-                newEntry = []
-                #add value if it is not in best column
-                for i in range(0,len(entry)):
-                    if(i != index):
-                        newEntry.append(entry[i])
-                examples.append(newEntry)
-        examples.remove([])
-        return examples
-
-    def makeTree(self, data, attributes, target, recursion):
-        recursion += 1
-        #Returns a new decision tree based on the examples given.
-        data = data[:]
-        #print target
-        #print(attributes.index(target))
-        vals = [record[attributes.index(target)] for record in data]
-        default = self.majority(attributes, data, target)
-
-        # If the dataset is empty or the attributes list is empty, return the
-        # default value. When checking the attributes list for emptiness, we
-        # need to subtract 1 to account for the target attribute.
-        if not data or (len(attributes) - 1) <= 0:
-            return default
-        # If all the records in the dataset have the same classification,
-        # return that classification.
-        elif vals.count(vals[0]) == len(vals):
-            return vals[0]
-        else:
-            # Choose the next best attribute to best classify our data
-            best = self.chooseAttr(data, attributes, target)
-            # Create a new decision tree/node with the best attribute and an empty
-            # dictionary object--we'll fill that up next.
-            tree = {best:{}}
-
-            # Create a new decision tree/sub-node for each of the values in the
-            # best attribute field
-            for val in self.getValues(data, attributes, best):
-                # Create a subtree for the current value under the "best" field
-                examples = self.getExamples(data, attributes, best, val)
-                newAttr = attributes[:]
-                newAttr.remove(best)
-                subtree = self.makeTree(examples, newAttr, target, recursion)
-
-                # Add the new subtree to the empty dictionary object in our new
-                # tree/node we just created.
-                tree[best][val] = subtree
-
+    def buildTree(self, dataset,labels):
+        classlist=[ x[-1] for x in dataset]
+        if classlist.count(classlist[0]) == len(classlist):
+            return classlist[0]
+        if len(classlist)==1:
+            return self.majority_count(classlist)
+        bestFeature=self.chooseBestFeatureToSplit(dataset)
+        bestFeatureLabel=labels[bestFeature]
+        tree={bestFeatureLabel:{}}
+        del(labels[bestFeature])
+        featValues = [x[bestFeature] for x in dataset]
+        uniqueVals = set(featValues)
+        for value in uniqueVals:
+            subLabels = labels[:]
+            tree[bestFeatureLabel][value] = self.buildTree(self.splitDataset(dataset, bestFeature, value),subLabels)
         return tree
 
-
-    # Add your code here.
-    # Use the learned decision tree to predict
-    # query example: 'n,y,n,y,y,y,n,n,n,y,?,y,y,y,n,y'
-    # return 'republican' or 'democrat'
+    def classify(self, tree,labels,testvec):
+        #print('testvec-', testvec)
+        firstStr = tree.keys()[0]
+        #print(firstStr)
+        #print(labels)
+        secondDict = tree[firstStr]
+        featIndex = labels.index(firstStr)
+        #print(featIndex)
+        for key in secondDict.keys():
+            #print(featIndex)
+            if testvec[featIndex] == key:
+                if type(secondDict[key]).__name__ == 'dict':
+                    classLabel = self.classify(secondDict[key],labels,testvec)
+                else: classLabel = secondDict[key]
+        try:
+            return classLabel
+        except:
+            return "republican"
 
     def solve(self, query):
-        self.count+=1
-        #pprint(self.tree)
-        tempDict = self.tree
-        result = "*"
-        while(isinstance(tempDict, dict)):
-            root = node.Node(tempDict.keys()[0], tempDict[tempDict.keys()[0]])
-            tempDict = tempDict[tempDict.keys()[0]]
-            index = self.attributes.index(root.value)
-            value = query[index]
-            if(value in tempDict.keys()):
-                child = node.Node(value, tempDict[value])
-                result = tempDict[value]
-                tempDict = tempDict[value]
-            else:
-                print("can't process input %s" % query)
-                result = "?"
-                break
-        print ("entry%s = %s" % (self.count, result))
-        return result
+            #pprint(self.tree)
+            instances = query.split()
+            #instances
+            #print(instances[0])
+            final_instances = instances[0].split(',')
+            #print('final_inst-', final_instances)
+            nfeature=len(self.data[0])
+            labels2=["att"+str(i) for i in range(nfeature-1)]
+            predicted_label = self.classify(self.tree, labels2, final_instances)
+            #print(predicted_label)
+            return predicted_label

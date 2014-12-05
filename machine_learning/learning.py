@@ -14,10 +14,14 @@ def question1():
     for row in data:
         instance = row.split();
         predict = solver.solve(instance[1]);
-        print("Correct answer would be = ", instance[0])
+
         if (instance[0] == predict):
-            print("Correct")
+            #print("Correct")
             correct = correct + 1;
+        else:
+            print("Wrong")
+            print("Correct answer would be = ", instance[0])
+            print("But we pred,", predict)
         total = total + 1;
     print "Question 1 accuracy: %f" % (correct / total);
 
