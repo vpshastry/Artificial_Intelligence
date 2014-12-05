@@ -2,7 +2,7 @@ from pprint import pprint
 class Question2_Solver:
     def __init__(self):
         self.demrepubHash = dict()
-        self.smoothValue = 0.25
+        self.smoothValue = 0.000000000000001
         self.values = ['y', 'n', '?']
         self.targets = ['democrat', 'republican']
         self.data = []
