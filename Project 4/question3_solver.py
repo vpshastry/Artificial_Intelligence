@@ -50,11 +50,11 @@ class Question3_Solver:
         prev1 = [0 for i in range(3)]
         prev2 = [0 for i in range(3)]
 
-        for i in range(10000):
+        while True:
             if self.compareTwoLists(prev1, prev2) and self.compareTwoLists(prev2, lcentroids):
                 break
 
-            cluster = [[] for x in xrange(3)]
+            cluster = [[] for x in range(3)]
             for point in points:
                 cluster[self.getMinDistCluster(point, lcentroids)].append(point)
 
