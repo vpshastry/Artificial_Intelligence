@@ -8,8 +8,8 @@ class Question1_Solver:
         self.data = []
         self.tree = None
         self.learn('train.data')
-        print(self.labels)
-        pprint(self.tree)
+        #print(self.labels)
+        #pprint(self.tree)
         self.count = 0
         self.attributes = ['handicapped-infants', 'water-project-cost-sharing', 'adoption-of-the-budget-resolution', 'physician-fee-freeze', 'el-salvador-aid', 'religious-groups-in-schools', 'anti-satellite-test-ban', 'aid-to-nicaraguan-contras', 'mx-missile', 'immigration', 'synfuels-corporation-cutback', 'education-spending', 'superfund-right-to-sue', 'crime', 'duty-free-exports', 'export-administration-act-south-africa', 'class']
         return
@@ -31,8 +31,8 @@ class Question1_Solver:
             dataList = instance[1].split(',')
             dataList.append(target)
             self.data.append(dataList)
-            nfeature=len(self.data[0])
-            self.labels=["att"+str(i) for i in range(nfeature-1)]
+            colnums=len(self.data[0])
+            self.labels=["att"+str(i) for i in range(colnums-1)]
         self.tree = self.buildTree(self.data,self.labels)
         return
     #find most common value for an attribute
@@ -67,56 +67,53 @@ class Question1_Solver:
                 reducedRecord.extend(record[col+1:])
                 retDataSet.append(reducedRecord)
         return retDataSet
-
-    def chooseBestFeatureToSplit(self, dataset):
-        numberFeature=len(dataset[0])-1
+    #choose best attribute to split on...
+    def chooseBestAttr(self, dataset):
+        num_attrs=len(dataset[0])-1
         baseEntropy=self.entropy(dataset)
         bestInfoGain=0.0
-        bestFeature=-1
-        for i in range(numberFeature):
-            featureList=[x[i] for x in dataset]
-            uniqueValues=set(featureList)
+        bestAttr=-1
+        for i in range(num_attrs):
+            attrList=[x[i] for x in dataset]
+            uniqueValues=set(attrList)
             newEntropy=0.0
             for value in uniqueValues:
-                subDataset=self.splitDataset(dataset, i, value)
-                prob=len(subDataset)/float(len(dataset))
-                newEntropy += prob*self.entropy(subDataset)
+                subset=self.splitDataset(dataset, i, value)
+                prob=len(subset)/float(len(dataset))
+                newEntropy += prob*self.entropy(subset)
             infoGain=baseEntropy-newEntropy
             if infoGain > bestInfoGain:
                 bestInfoGain=infoGain
-                bestFeature=i
-        return bestFeature
-
+                bestAttr=i
+        return bestAttr
+    #Create the DTree
     def buildTree(self, dataset,labels):
         classlist=[ x[-1] for x in dataset]
         if classlist.count(classlist[0]) == len(classlist):
             return classlist[0]
         if len(classlist)==1:
             return self.majority_count(classlist)
-        bestFeature=self.chooseBestFeatureToSplit(dataset)
-        bestFeatureLabel=labels[bestFeature]
+        bestAttr=self.chooseBestAttr(dataset)
+        bestFeatureLabel=labels[bestAttr]
         tree={bestFeatureLabel:{}}
-        del(labels[bestFeature])
-        featValues = [x[bestFeature] for x in dataset]
-        uniqueVals = set(featValues)
+        del(labels[bestAttr])
+        AttrValues = [x[bestAttr] for x in dataset]
+        uniqueVals = set(AttrValues)
         for value in uniqueVals:
             subLabels = labels[:]
-            tree[bestFeatureLabel][value] = self.buildTree(self.splitDataset(dataset, bestFeature, value),subLabels)
+            tree[bestFeatureLabel][value] = self.buildTree(self.splitDataset(dataset, bestAttr, value),subLabels)
         return tree
-
-    def classify(self, tree,labels,testvec):
-        #print('testvec-', testvec)
+    # test, using built tree to classify test queries
+    def classify(self, tree,labels,test_query):
         firstStr = tree.keys()[0]
-        #print(firstStr)
-        #print(labels)
         secondDict = tree[firstStr]
-        featIndex = labels.index(firstStr)
+        AttrIndex = labels.index(firstStr)
         #print(featIndex)
         for key in secondDict.keys():
             #print(featIndex)
-            if testvec[featIndex] == key:
+            if test_query[AttrIndex] == key:
                 if type(secondDict[key]).__name__ == 'dict':
-                    classLabel = self.classify(secondDict[key],labels,testvec)
+                    classLabel = self.classify(secondDict[key],labels,test_query)
                 else: classLabel = secondDict[key]
         try:
             return classLabel
@@ -130,8 +127,8 @@ class Question1_Solver:
             #print(instances[0])
             final_instances = instances[0].split(',')
             #print('final_inst-', final_instances)
-            nfeature=len(self.data[0])
-            labels2=["att"+str(i) for i in range(nfeature-1)]
-            predicted_label = self.classify(self.tree, labels2, final_instances)
+            colnums=len(self.data[0])
+            cols2=["att"+str(i) for i in range(colnums-1)]
+            predicted_label = self.classify(self.tree, cols2, final_instances)
             #print(predicted_label)
             return predicted_label

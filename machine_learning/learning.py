@@ -18,10 +18,10 @@ def question1():
         if (instance[0] == predict):
             #print("Correct")
             correct = correct + 1;
-        else:
-            print("Wrong")
-            print("Correct answer would be = ", instance[0])
-            print("But we pred,", predict)
+        #else:
+            #print("Wrong")
+            #print("Correct answer would be = ", instance[0])
+            #print("But we pred,", predict)
         total = total + 1;
     print "Question 1 accuracy: %f" % (correct / total);
 
