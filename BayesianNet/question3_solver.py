@@ -1,4 +1,5 @@
 #from pprint import pprint
+import string
 class Question3_Solver:
     def __init__(self, cpt):
         # To store first order function
@@ -10,10 +11,13 @@ class Question3_Solver:
         self.cpt = cpt
 
         # Letters to build the first and second order functions
-        self.letters = ['`','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+        #self.letters = ['`','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
 
         # Letters without '`'
-        self.letters_main = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+        #self.letters_main = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+        self.letters_main = list(string.ascii_lowercase)
+        self.letters = list(self.letters_main)
+        self.letters.insert(0, '`')
 
         # Build both the tables
         self.build_first_table()
